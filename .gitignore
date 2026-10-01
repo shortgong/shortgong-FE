@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# 에이전트 로컬 설정 (저장소에는 skills-lock.json 만 추적)
+.agents
+
+# 사용되지 않는 디자인 소스 (Icon.tsx 가 경로를 인라인 처리)
+public/assets/ic-*.svg
+public/assets/illust-onboarding.svg
+public/assets/cover-english.png
