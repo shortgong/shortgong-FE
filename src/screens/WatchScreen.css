@@ -7,3 +7,59 @@
   background: #0e1512;
   color: #fff;
 }
+
+/* ---------- 스냅 스크롤 스테이지 ---------- */
+.watch__stage {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  touch-action: pan-y;
+}
+
+.watch__stage::-webkit-scrollbar {
+  display: none;
+}
+
+.slide {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: calc(var(--safe-top) - 26px) 0 calc(var(--safe-bottom) + 8px);
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  /* 비활성 슬라이드는 클릭/포커스가 새지 않게 한다 (스테이지는 계속 드래그 가능) */
+  pointer-events: none;
+}
+
+.slide.is-active {
+  pointer-events: auto;
+}
+
+.slide__bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.slide__bg--mint {
+  background: radial-gradient(120% 70% at 20% 0%, #1d5c46 0%, #0e1512 62%), linear-gradient(180deg, #16342a, #0e1512);
+}
+.slide__bg--sand {
+  background: radial-gradient(120% 70% at 78% 8%, #6b5324 0%, #0e1512 64%), linear-gradient(180deg, #2b2415, #0e1512);
+}
+.slide__bg--lilac {
+  background: radial-gradient(120% 70% at 50% 0%, #3c2f5c 0%, #0e1512 64%), linear-gradient(180deg, #201a30, #0e1512);
+}
+.slide__bg--sky {
+  background: radial-gradient(120% 70% at 30% 0%, #1d4a5c 0%, #0e1512 62%), linear-gradient(180deg, #14262e, #0e1512);
+}
+
+.slide__spacer {
+  flex: 1;
+  min-height: 0;
+}
