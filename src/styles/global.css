@@ -1,0 +1,149 @@
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font: var(--t-body);
+  letter-spacing: var(--ls-body);
+  color: var(--c-ink);
+  background: #eceff1;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+p,
+figure {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+input,
+textarea {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  outline: 0;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--c-ink-muted);
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-brand-deep);
+  outline-offset: 2px;
+  border-radius: var(--r-xs);
+}
+
+/* ---------- typography helpers ---------- */
+.t-display {
+  font: var(--t-display);
+  letter-spacing: var(--ls-display);
+}
+.t-title {
+  font: var(--t-title);
+  letter-spacing: var(--ls-title);
+}
+.t-subtitle {
+  font: var(--t-subtitle);
+  letter-spacing: var(--ls-body);
+}
+.t-body {
+  font: var(--t-body);
+  letter-spacing: var(--ls-body);
+}
+.t-label {
+  font: var(--t-label);
+  letter-spacing: var(--ls-label);
+}
+.t-label-plain {
+  font: var(--t-label-plain);
+  letter-spacing: var(--ls-label);
+}
+.t-caption {
+  font: var(--t-caption);
+  letter-spacing: var(--ls-caption);
+}
+.t-caption-plain {
+  font: var(--t-caption-plain);
+  letter-spacing: var(--ls-caption);
+}
+
+.muted {
+  color: var(--c-ink-muted);
+}
+.dim {
+  opacity: 0.84;
+}
+
+/* ---------- app shell ---------- */
+.screen {
+  display: flex;
+  flex-direction: column;
+  /* min-height 가 아니라 height: 문서 전체가 늘어나면 하단 바가 미끄러진다 */
+  height: 100dvh;
+  overflow: hidden;
+  padding-top: var(--safe-top);
+  background: var(--c-bg);
+}
+
+.screen__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.section {
+  padding: 18px var(--gutter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

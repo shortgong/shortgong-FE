@@ -1,0 +1,83 @@
+:root {
+  /* ---- color ---- */
+  --c-bg: #ffffff;
+  --c-surface: #f5f9f6;
+  --c-surface-line: #f1f5f2;
+  --c-brand-tint: #ecf5ef;
+  /* 표지/썸네일 단색 톤 (Figma 2:83 표지와 동일) */
+  --tone-mint: #ecf5ef;
+  --tone-sky: #e4edf9;
+  --tone-lilac: #ece7f9;
+  --tone-sand: #f6eede;
+  --tone-ink-mint: #0d7a48;
+  --tone-ink-sky: #2f5f96;
+  --tone-ink-lilac: #5b4b96;
+  --tone-ink-sand: #8a6320;
+  --c-brand: #00a661;
+  /* 브랜드 톤을 유지한 채 대비만 확보한 값. 흰 글/배치 5.0:1,
+     흰 배경 위 텍스트 5.0:1, 브랜드 틴트(#ECF5EF) 위 4.5:1 */
+  --c-brand-ink: #07804d;
+  --c-brand-deep: #0d8950;
+  --c-ink-2: #333834;
+  --c-ink: #1c1f1d;
+  --c-surface-2: #eaf1ec;
+  --c-surface-strong: #e2ebe5;
+  --c-ok-soft: #e4f4ea;
+  --c-ok-ink: #0d7a48;
+  --c-warn-soft: #fdece4;
+  --c-warn-ink: #b4471f;
+  --shadow-card: 0 2px 12px rgba(28, 31, 29, 0.06);
+  /* Figma 원본은 #919592 였지만 12~14px 본문 기준 대비 3.0:1로 WCAG AA 미달.
+     본문이 읽히는 톤으로 조정 (흰 배경·F1F5F2 패널 모두 4.5:1 이상) */
+  --c-ink-muted: #676d68;
+  /* 보조 메타(시행일·주석) 전용. 본문에는 사용하지 말 것 — 본문은 --c-ink-muted */
+  --c-ink-faint: #767c77;
+  --c-on-brand: #ffffff;
+  --c-night: #1c1f1d;
+  --c-on-night: #ffffff;
+  --c-night-scrim: rgba(255, 255, 255, 0.18);
+  --c-night-ghost: rgba(255, 255, 255, 0.28);
+  --c-divider: #f1f5f2;
+  --c-hairline: #e4eae6;
+  --c-paper: #fbfcfb;
+
+  /* ---- type ---- */
+  --font: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo',
+    system-ui, sans-serif;
+
+  --t-display: 750 28px/36px var(--font);
+  --t-title: 700 18px/26px var(--font);
+  --t-subtitle: 650 14px/21px var(--font);
+  --t-body: 500 14px/22px var(--font);
+  --t-label: 650 13px/20px var(--font);
+  --t-label-plain: 500 13px/20px var(--font);
+  --t-caption: 650 12px/18px var(--font);
+  --t-caption-plain: 500 12px/18px var(--font);
+
+  --ls-display: -0.02em;
+  --ls-title: -0.0082em;
+  --ls-body: -0.01em;
+  --ls-label: -0.0108em;
+  --ls-caption: -0.0117em;
+
+  /* ---- radius ---- */
+  --r-xs: 6px;
+  --r-sm: 11px;
+  --r-md: 14px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-pill: 999px;
+
+  /* ---- layout ---- */
+  --gutter: 20px;
+  /* 실제 안전영역을 쓰고, 데스크톱 브라우저에서 볼 때만 최소 여백을 둔다.
+     (하드코딩 55/50px 가 하단 바 아래 빈 공간의 원인이었음) */
+  --safe-top: max(env(safe-area-inset-top, 0px), 26px);
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), 18px);
+  --cta-h: 54px;
+  --tabbar-h: 76px;
+
+  /* ---- motion ---- */
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+  --dur: 180ms;
+}
