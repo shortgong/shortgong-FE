@@ -266,3 +266,93 @@
   color: #fff;
   font-weight: 700;
 }
+
+/* ---------- 더블탭 버스트 ---------- */
+.burst {
+  position: absolute;
+  z-index: 8;
+  color: #ff4d6d;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: burst 620ms var(--ease) forwards;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.45));
+}
+
+@keyframes burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(-14deg);
+  }
+  22% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15) rotate(6deg);
+  }
+  45% {
+    transform: translate(-50%, -50%) scale(0.98) rotate(-3deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -62%) scale(1.05) rotate(0deg);
+  }
+}
+
+/* ---------- 스크린리더 ---------- */
+.watch__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------- 학습 세트 모드 ---------------- */
+/* 세트바는 절대위치가 아니라 흐름에 둔다 — 스테이지와 겹칠 여지가 생기지 않는다 */
+.watch__setbar {
+  flex: none;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: calc(var(--safe-top) - 26px + 8px) var(--gutter) 8px;
+  color: #fff;
+}
+
+.watch__setExit {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 34px;
+  padding: 0 10px 0 6px;
+  border-radius: var(--r-pill);
+  background: rgba(12, 18, 15, 0.4);
+  backdrop-filter: blur(4px);
+  color: #fff;
+}
+
+.watch__setInfo {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.watch__setName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+.watch__setCount {
+  flex: none;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+
+/* 세트바가 이미 자리를 차지하므로 스테이지 쪽 상단 여백은 줄인다 */
+.watch__stage--set .slide {
+  padding-top: 2px;
+}
