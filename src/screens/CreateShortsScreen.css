@@ -153,3 +153,42 @@
 .attach__x:hover {
   background: var(--c-surface-2);
 }
+
+/* ---------- 생성 진행 ---------- */
+.making {
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+}
+
+.making__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.making__pct {
+  color: var(--c-brand-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.making__track {
+  height: 6px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--c-surface-strong);
+}
+
+.making__track > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--c-brand);
+  transition: width 120ms linear;
+}
+
+.making__note {
+  margin-top: 8px;
+}
