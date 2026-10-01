@@ -87,3 +87,69 @@
 .create__upload-sec {
   margin-top: 0;
 }
+
+/* ---------- 첨부 / 업로드 ---------- */
+.upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.upload:hover {
+  background: var(--c-surface-2);
+}
+
+.upload:disabled {
+  opacity: 0.55;
+}
+
+.attach {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px 8px 8px;
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+}
+
+.attach__thumb {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--c-brand-soft);
+  color: var(--c-brand-ink);
+}
+
+.attach__name {
+  flex: 1;
+  min-width: 0;
+  color: var(--c-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attach__x {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--r-pill);
+  color: var(--c-ink-muted);
+}
+
+.attach__x:hover {
+  background: var(--c-surface-2);
+}
