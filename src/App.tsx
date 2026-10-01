@@ -1,14 +1,15 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Toast } from './components/Toast';
-import { Placeholder } from './screens/Placeholder';
 import { StoreProvider } from './store/StoreProvider';
+import { OnboardingScreen } from './screens/OnboardingScreen';
+import { Placeholder } from './screens/Placeholder';
 
 export default function App() {
   return (
     <StoreProvider>
       <Routes>
         <Route path="/" element={<Navigate to="/onboarding" replace />} />
-        <Route path="/onboarding" element={<Placeholder title="온보딩" />} />
+        <Route path="/onboarding" element={<OnboardingScreen />} />
         <Route path="/login" element={<Navigate to="/onboarding" replace />} />
         <Route path="/legal/:slug" element={<Placeholder title="약관" />} />
         <Route path="/home" element={<Placeholder title="홈" />} />
