@@ -1,0 +1,194 @@
+.create {
+  background: var(--c-bg);
+}
+
+.create__scroll {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px var(--gutter) 20px;
+}
+
+.create__label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.create__input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  line-height: 1.55;
+  resize: none;
+}
+
+.create__input::placeholder {
+  color: var(--c-ink-muted);
+}
+
+.create__input:focus {
+  background: var(--c-bg);
+  box-shadow: inset 0 0 0 1.5px var(--c-brand-ink);
+}
+
+.create__input:disabled {
+  opacity: 0.6;
+}
+
+.create__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.create__clear {
+  font: var(--t-caption-plain);
+  color: var(--c-brand-ink);
+}
+
+.create__ex-title {
+  margin-bottom: 8px;
+}
+
+.create__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.create__chip {
+  padding: 9px 13px;
+  border-radius: var(--r-pill);
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+  font: var(--t-label-plain);
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.create__chip:hover {
+  background: var(--c-surface-2);
+}
+
+.create__chip.is-on {
+  background: var(--c-brand-soft);
+  color: var(--c-brand-ink);
+  box-shadow: inset 0 0 0 1.5px var(--c-brand-ink);
+}
+
+.create__upload-sec {
+  margin-top: 0;
+}
+
+/* ---------- 첨부 / 업로드 ---------- */
+.upload {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 48px;
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.upload:hover {
+  background: var(--c-surface-2);
+}
+
+.upload:disabled {
+  opacity: 0.55;
+}
+
+.attach {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px 8px 8px;
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+}
+
+.attach__thumb {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: var(--r-sm);
+  background: var(--c-brand-soft);
+  color: var(--c-brand-ink);
+}
+
+.attach__name {
+  flex: 1;
+  min-width: 0;
+  color: var(--c-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attach__x {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--r-pill);
+  color: var(--c-ink-muted);
+}
+
+.attach__x:hover {
+  background: var(--c-surface-2);
+}
+
+/* ---------- 생성 진행 ---------- */
+.making {
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+}
+
+.making__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.making__pct {
+  color: var(--c-brand-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.making__track {
+  height: 6px;
+  margin-top: 10px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--c-surface-strong);
+}
+
+.making__track > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--c-brand);
+  transition: width 120ms linear;
+}
+
+.making__note {
+  margin-top: 8px;
+}
