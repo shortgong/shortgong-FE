@@ -3,12 +3,12 @@ import { Toast } from './components/Toast';
 import { StoreProvider } from './store/StoreProvider';
 import { CreateShortsScreen } from './screens/CreateShortsScreen';
 import { ExploreScreen } from './screens/ExploreScreen';
+import { LegalScreen } from './screens/LegalScreen';
 import { MeScreen } from './screens/MeScreen';
 import { OnboardingScreen } from './screens/OnboardingScreen';
 import { QuizScreen } from './screens/QuizScreen';
 import { StudyHomeScreen } from './screens/StudyHomeScreen';
 import { WatchScreen } from './screens/WatchScreen';
-import { Placeholder } from './screens/Placeholder';
 
 export default function App() {
   return (
@@ -17,7 +17,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/onboarding" replace />} />
         <Route path="/onboarding" element={<OnboardingScreen />} />
         <Route path="/login" element={<Navigate to="/onboarding" replace />} />
-        <Route path="/legal/:slug" element={<Placeholder title="약관" />} />
+        <Route path="/legal/:slug" element={<LegalScreen />} />
         <Route path="/home" element={<StudyHomeScreen />} />
         <Route path="/explore" element={<ExploreScreen />} />
         <Route path="/me" element={<MeScreen />} />
