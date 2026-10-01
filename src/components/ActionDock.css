@@ -1,0 +1,29 @@
+/* .screen 이 이미 padding-bottom 으로 safe-area 를 잡고 있으므로,
+   도크는 음수 마진으로 그 영역을 흡수해 배경이 실제 화면 바닥까지 이어지게 한다.
+   (안전영역을 두 번 더하지 않아야 한다) */
+.dock {
+  position: sticky;
+  bottom: 0;
+  z-index: 25;
+  flex: none;
+  margin-bottom: calc(-1 * var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: var(--c-bg);
+  box-shadow: 0 -14px 18px -16px rgba(28, 31, 29, 0.35);
+}
+
+.dock--elevated {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.92) 34%, #fff 62%);
+  padding-top: 10px;
+}
+
+.dock__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px var(--gutter) 12px;
+}
+
+.dock--compact {
+  padding-bottom: 8px;
+}
