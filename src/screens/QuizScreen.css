@@ -269,3 +269,105 @@
   background: var(--c-brand-ink);
   color: #fff;
 }
+
+/* ---------- 결과 ---------- */
+.scorecard {
+  padding: 18px 16px 14px;
+  border-radius: var(--r-xl);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.scorecard__eyebrow {
+  color: var(--c-brand-ink);
+}
+
+.scorecard__grade {
+  margin-top: 6px;
+}
+
+.scorecard__badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.scorecard__badge {
+  padding: 5px 10px;
+  border-radius: var(--r-pill);
+  font: var(--t-caption-plain);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.scorecard__badge.is-ok {
+  background: var(--c-ok-soft);
+  color: var(--c-ok-ink);
+}
+
+.scorecard__badge.is-no {
+  background: var(--c-warn-soft);
+  color: var(--c-warn-ink);
+}
+
+.scorecard__rows {
+  margin-top: 14px;
+}
+
+.scorecard__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid var(--c-surface-line);
+}
+
+.review {
+  padding: 4px 2px;
+}
+
+.review__title {
+  margin-bottom: 10px;
+}
+
+.review__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.review__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  background: var(--c-surface);
+}
+
+.review__q {
+  color: var(--c-ink-muted);
+}
+
+.review__a {
+  color: var(--c-ink);
+}
+
+.chiprow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chiprow__chip {
+  padding: 8px 12px;
+  border-radius: var(--r-pill);
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+  font: var(--t-label-plain);
+}
+
+.chiprow__chip:hover {
+  background: var(--c-surface-2);
+}
