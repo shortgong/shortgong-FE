@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Toast } from './components/Toast';
 import { StoreProvider } from './store/StoreProvider';
 import { OnboardingScreen } from './screens/OnboardingScreen';
+import { StudyHomeScreen } from './screens/StudyHomeScreen';
 import { Placeholder } from './screens/Placeholder';
 
 export default function App() {
@@ -12,7 +13,7 @@ export default function App() {
         <Route path="/onboarding" element={<OnboardingScreen />} />
         <Route path="/login" element={<Navigate to="/onboarding" replace />} />
         <Route path="/legal/:slug" element={<Placeholder title="약관" />} />
-        <Route path="/home" element={<Placeholder title="홈" />} />
+        <Route path="/home" element={<StudyHomeScreen />} />
         <Route path="/explore" element={<Placeholder title="탐색" />} />
         <Route path="/me" element={<Placeholder title="마이" />} />
         <Route path="/create" element={<Placeholder title="만들기" />} />

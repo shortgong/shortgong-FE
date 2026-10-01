@@ -1,0 +1,67 @@
+.chrow {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--gutter);
+}
+
+.chrow__item {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 2px;
+  border-radius: var(--r-sm);
+  transition: opacity var(--dur) var(--ease);
+}
+
+.chrow__item:active {
+  opacity: 0.6;
+}
+
+.chrow__mark {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-pill);
+  font: 650 15px/1 var(--font);
+}
+
+.chrow__mark--mint {
+  background: var(--tone-mint);
+  color: var(--tone-ink-mint);
+}
+.chrow__mark--sky {
+  background: var(--tone-sky);
+  color: var(--tone-ink-sky);
+}
+.chrow__mark--lilac {
+  background: var(--tone-lilac);
+  color: var(--tone-ink-lilac);
+}
+.chrow__mark--sand {
+  background: var(--tone-sand);
+  color: var(--tone-ink-sand);
+}
+
+.chrow__name {
+  font: 500 12px/15px var(--font);
+  letter-spacing: -0.0117em;
+  color: var(--c-ink-2);
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.chrow__count {
+  font: 400 12px/15px var(--font);
+  letter-spacing: -0.0117em;
+  color: var(--c-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
