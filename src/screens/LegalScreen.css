@@ -1,0 +1,31 @@
+/* 약관/개인정보처리방침 — 본문 최우선, 장식 없음 */
+
+.legal {
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.legal__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px var(--gutter) calc(var(--safe-bottom) + 28px);
+}
+
+.legal__effective {
+  font: var(--t-caption-plain);
+  letter-spacing: var(--ls-caption);
+  color: var(--c-ink-faint);
+  padding-bottom: 14px;
+}
+
+.legal__intro {
+  font: var(--t-body);
+  letter-spacing: var(--ls-body);
+  color: var(--c-ink-2);
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--c-hairline);
+  overflow-wrap: anywhere;
+}
