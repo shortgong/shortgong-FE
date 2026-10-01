@@ -183,3 +183,126 @@ export const shortsOfSet = (set: StudySet) =>
   set.shortIds.map((id) => SHORTS.find((s) => s.id === id)).filter((s): s is Short => Boolean(s));
 
 /** 세트 진행률 0~1 */
+export type Question = {
+  id: string;
+  /** 이 문제를 풀 수 있는 학습 세트 (퀴즈는 세트에서만 진입 가능) */
+  setId: string;
+  kind: 'choice' | 'text';
+  prompt: string;
+  choices?: { id: string; label: string }[];
+  answer: string;
+  accepted: string[];
+  hint: string;
+};
+
+export const QUESTIONS: Question[] = [
+  {
+    id: 'q-science-1',
+    setId: 'set-science',
+    kind: 'choice',
+    prompt: '세포 소기관 편 봤어요. 광합성이 일어나는 소기관은?',
+    choices: [
+      { id: '1', label: '미토콘드리아' },
+      { id: '2', label: '엽록체' },
+      { id: '3', label: '리보솜' },
+      { id: '4', label: '핵' },
+    ],
+    answer: '2',
+    accepted: ['2'],
+    hint: '광합성이 일어나는 세포 소기관은?',
+  },
+  {
+    id: 'q-science-2',
+    setId: 'set-science',
+    kind: 'text',
+    prompt: '2번째 편이에요. 세포호흡이 일어나는 소기관의 이름을 적어주세요.',
+    answer: '미토콘드리아',
+    accepted: ['미토콘드리아', '마이토콘드리아', 'mitochondria'],
+    hint: '세포 호흡이 일어나는 장소',
+  },
+  {
+    id: 'q-science-3',
+    setId: 'set-science',
+    kind: 'text',
+    prompt: '마지막 문제예요. 단백질을 합성하는 구조물은 무엇일까요?',
+    answer: '리보솜',
+    accepted: ['리보솜', '리보좀', '리보소마', 'ribosome'],
+    hint: '단백질을 합성하는 곳',
+  },
+  {
+    id: 'q-derivative-1',
+    setId: 'set-derivative',
+    kind: 'choice',
+    prompt: '함수 그 자체를 다루는 학문의 이름은?',
+    choices: [
+      { id: '1', label: '미적분학' },
+      { id: '2', label: '대수학' },
+      { id: '3', label: '위상수학' },
+    ],
+    answer: '1',
+    accepted: ['1'],
+    hint: '함수의 변화율을 다루는 학문',
+  },
+  {
+    id: 'q-derivative-2',
+    setId: 'set-derivative',
+    kind: 'text',
+    prompt: '함수의 순간 변화율을 뜻하는 단어는?',
+    answer: '도함수',
+    accepted: ['도함수', '미분계수', 'derivative'],
+    hint: '변화율 그 자체',
+  },
+  {
+    id: 'q-derivative-3',
+    setId: 'set-derivative',
+    kind: 'choice',
+    prompt: '극한값을 이용해 면적을 구하는 방법이야, 뜻하는 영어 단어는?',
+    choices: [
+      { id: '1', label: 'Integral' },
+      { id: '2', label: 'Derivative' },
+      { id: '3', label: 'Matrix' },
+    ],
+    answer: '1',
+    accepted: ['1'],
+    hint: '누적해서 넓이를 구하는 방법',
+  },
+  {
+    id: 'q-toeic-1',
+    setId: 'set-toeic',
+    kind: 'choice',
+    prompt: '빈출 단어 중 "기회, 기회" 뜻은?',
+    choices: [
+      { id: '1', label: 'opportunity' },
+      { id: '2', label: 'occasion' },
+      { id: '3', label: 'chance' },
+    ],
+    answer: '1',
+    accepted: ['1'],
+    hint: '기회 (형용사형 opportunities)',
+  },
+  {
+    id: 'q-toeic-2',
+    setId: 'set-toeic',
+    kind: 'text',
+    prompt: '"반대, 대척" 뜻하는 단어를 적어주세요.',
+    answer: 'contrast',
+    accepted: ['contrast', 'contrary', '대조'],
+    hint: '반대',
+  },
+  {
+    id: 'q-toeic-3',
+    setId: 'set-toeic',
+    kind: 'choice',
+    prompt: '"명확히, 분명히" 에 가장 가까운 단어는?',
+    choices: [
+      { id: '1', label: 'obvious' },
+      { id: '2', label: 'actual' },
+      { id: '3', label: 'various' },
+    ],
+    answer: '1',
+    accepted: ['1'],
+    hint: '분명히',
+  },
+];
+
+export const questionsOfSet = (setId: string) => QUESTIONS.filter((q) => q.setId === setId);
