@@ -1,0 +1,65 @@
+/* 약관/개인정보처리방침 — 본문 최우선, 장식 없음 */
+
+.legal {
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+.legal__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px var(--gutter) calc(var(--safe-bottom) + 28px);
+}
+
+.legal__effective {
+  font: var(--t-caption-plain);
+  letter-spacing: var(--ls-caption);
+  color: var(--c-ink-faint);
+  padding-bottom: 14px;
+}
+
+.legal__intro {
+  font: var(--t-body);
+  letter-spacing: var(--ls-body);
+  color: var(--c-ink-2);
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--c-hairline);
+  overflow-wrap: anywhere;
+}
+
+.legal__section {
+  padding: 20px 0 0;
+}
+
+.legal__heading {
+  font: var(--t-subtitle);
+  letter-spacing: var(--ls-title);
+  color: var(--c-ink);
+  margin-bottom: 7px;
+  overflow-wrap: anywhere;
+}
+
+.legal__para {
+  font: 400 13.5px/22px var(--font);
+  letter-spacing: var(--ls-body);
+  color: var(--c-ink-muted);
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.legal__para + .legal__para {
+  margin-top: 8px;
+}
+
+.legal__foot {
+  font: var(--t-caption-plain);
+  letter-spacing: var(--ls-caption);
+  color: var(--c-ink-faint);
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--c-hairline);
+  text-align: center;
+}
