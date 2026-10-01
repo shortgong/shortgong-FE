@@ -1,0 +1,60 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 54px;
+  padding: 0 8px;
+  background: var(--c-bg);
+  transition: box-shadow var(--dur) var(--ease);
+}
+
+.topbar--center {
+  justify-content: space-between;
+}
+
+.topbar__slot {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 44px;
+  flex: none;
+}
+
+.topbar__slot--trail {
+  justify-content: flex-end;
+}
+
+.topbar__title {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar--center .topbar__title {
+  flex: 0 1 auto;
+  text-align: left;
+}
+
+.topbar__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-pill);
+  color: var(--c-ink);
+  transition: background-color var(--dur) var(--ease);
+}
+
+.topbar__icon:hover {
+  background: var(--c-surface);
+}
+
+.topbar__icon.is-brand {
+  color: var(--c-brand-ink);
+}
