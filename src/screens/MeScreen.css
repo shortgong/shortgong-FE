@@ -1,0 +1,48 @@
+.me {
+  background: var(--c-bg);
+}
+
+.me__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px var(--gutter) 20px;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 16px;
+}
+
+.profile__avatar {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: var(--r-pill);
+  background: var(--c-brand-soft);
+  color: var(--c-brand-ink);
+}
+
+.profile__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile__edit {
+  flex: none;
+  padding: 8px 13px;
+  border-radius: var(--r-pill);
+  background: var(--c-surface);
+  color: var(--c-ink-2);
+}
