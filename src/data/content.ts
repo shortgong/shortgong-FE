@@ -306,3 +306,14 @@ export const QUESTIONS: Question[] = [
 ];
 
 export const questionsOfSet = (setId: string) => QUESTIONS.filter((q) => q.setId === setId);
+
+export const DAILY_TIPS = [
+  { title: '오늘의 학습 팁', body: '하루 3분씩 이어보면 기억에 오래 남아요' },
+  { title: '복습 타이밍', body: '배운 날로부터 1일, 3일, 7일 뒤에 다시 보면 체감이 커요' },
+  { title: '잘못 외우는 법', body: '오답은 지우지 말고 다시 읽어야 다음번에 안 틀려요' },
+  { title: '속도 조절', body: '처음엔 1.25배로 천천히, 익숙해지면 2배로 올려보세요' },
+];
+
+export const fmtSec = (s: number) => `${Math.floor(s / 60)}분`;
+export const fmtCount = (n: number) =>
+  n >= 10000 ? `${(n / 1000).toFixed(1)}만` : n >= 1000 ? `${(n / 1000).toFixed(1)}천` : String(n);
