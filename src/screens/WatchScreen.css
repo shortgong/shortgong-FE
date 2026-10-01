@@ -1,0 +1,9 @@
+.watch {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  background: #0e1512;
+  color: #fff;
+}
