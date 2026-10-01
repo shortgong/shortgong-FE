@@ -157,3 +157,17 @@
   /* 마지막 요소가 fixed 탭바에 가려지지 않도록 여유를 준다 */
   padding: 0 var(--gutter) calc(var(--tabbar-h) + 8px);
 }
+
+/* ---------- 홈 상단 대표 세트 ---------- */
+.home__feature {
+  padding: 0 var(--gutter) var(--space-section);
+}
+
+/* ---------- 인기 쇼츠 레일 (화면 가장자리까지 이어진다) ---------- */
+.home__rail {
+  padding-bottom: var(--space-section);
+}
+
+.home__channels {
+  padding-bottom: var(--space-section);
+}
