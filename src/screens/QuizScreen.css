@@ -121,3 +121,37 @@
     opacity: 0;
   }
 }
+
+/* ---------- 채점 피드백 ---------- */
+.judge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 8px 12px;
+  border-radius: var(--r-pill);
+  font: var(--t-label);
+  animation: judge-in 240ms var(--ease);
+}
+
+.judge--inline {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+.judge.is-ok {
+  background: var(--c-ok-soft);
+  color: var(--c-ok-ink);
+}
+
+.judge.is-no {
+  background: var(--c-warn-soft);
+  color: var(--c-warn-ink);
+}
+
+@keyframes judge-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
