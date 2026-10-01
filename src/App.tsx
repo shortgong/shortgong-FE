@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Toast } from './components/Toast';
 import { StoreProvider } from './store/StoreProvider';
+import { CreateShortsScreen } from './screens/CreateShortsScreen';
 import { ExploreScreen } from './screens/ExploreScreen';
 import { MeScreen } from './screens/MeScreen';
 import { OnboardingScreen } from './screens/OnboardingScreen';
@@ -20,7 +21,7 @@ export default function App() {
         <Route path="/home" element={<StudyHomeScreen />} />
         <Route path="/explore" element={<ExploreScreen />} />
         <Route path="/me" element={<MeScreen />} />
-        <Route path="/create" element={<Placeholder title="만들기" />} />
+        <Route path="/create" element={<CreateShortsScreen />} />
         <Route path="/sets" element={<Navigate to="/explore" replace />} />
         <Route path="/quiz" element={<QuizScreen />} />
         <Route path="/watch" element={<WatchScreen />} />
