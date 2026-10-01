@@ -3,6 +3,12 @@ import type { KeyboardEvent, PointerEvent as ReactPointerEvent } from 'react';
 
 /** 어느 축으로 꺾였는지 판정하기 전의 무시 구간 */
 const AXIS_LOCK = 6;
+/** 화면폭 대비 이만큼 밀면 페이지 전환 */
+const SWIPE_RATIO = 0.2;
+/** px/ms 이상 빠르게 튕기면 짧게 밀어도 전환 */
+const SWIPE_VELOCITY = 0.35;
+/** 첫/마지막 카드에서 바깥으로 밀 때 저항 */
+const EDGE_DAMP = 0.3;
 
 type Axis = null | 'x' | 'y';
 
@@ -46,6 +52,12 @@ export function useSwipeDeck({ count, index, onIndex, enabled = true }: Options)
     setDx(0);
   };
 
+  /** 끝을 넘겨서 dragging 하려는 구간은 거리에 비례해 덜 움직이게 한다 */
+  const damp = (raw: number) => {
+    const past = (index === 0 && raw > 0) || (index === last && raw < 0);
+    return past ? raw * EDGE_DAMP : raw;
+  };
+
   const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     const s = g.current;
     if (!s.on) return;
@@ -58,7 +70,7 @@ export function useSwipeDeck({ count, index, onIndex, enabled = true }: Options)
       else setDragging(false);
     }
     if (s.axis !== 'x') return;
-    setDx(e.clientX - s.x);
+    setDx(damp(e.clientX - s.x));
   };
 
   const onPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -72,6 +84,13 @@ export function useSwipeDeck({ count, index, onIndex, enabled = true }: Options)
       return;
     }
     if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    const raw = e.clientX - s.x;
+    const velocity = raw / Math.max(1, e.timeStamp - s.t);
+    const width = e.currentTarget.clientWidth || 1;
+    if (Math.abs(raw) > width * SWIPE_RATIO || Math.abs(velocity) > SWIPE_VELOCITY) {
+      go(index + (raw < 0 ? 1 : -1));
+      return;
+    }
     go(index);
   };
 
