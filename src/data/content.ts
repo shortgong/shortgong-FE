@@ -1,3 +1,5 @@
+import { EMBED_DOCS, buildEmbedDoc } from './embedDocs';
+import { EMBED_CSP } from '../embed/embedPolicy';
 export type Short = {
   id: string;
   title: string;
@@ -12,6 +14,11 @@ export type Short = {
   likes: number;
   createdAgo: string;
   watched: boolean;
+  /**
+   * 인제스트가 새티타이즈하고 CSP 를 주입해 내려준 self-contained HTML.
+   * 없으면 쇼츠는 배경 그라디언트만 보여준다. src/embed/embedPolicy.ts 참고.
+   */
+  html?: string;
 };
 
 export const SHORTS: Short[] = [
@@ -59,6 +66,7 @@ export const SHORTS: Short[] = [
     likes: 612,
     createdAgo: '3일 전',
     watched: false,
+    html: buildEmbedDoc(EMBED_DOCS.card, EMBED_CSP),
   },
   {
     id: 's4',
@@ -89,6 +97,7 @@ export const SHORTS: Short[] = [
     likes: 431,
     createdAgo: '1주 전',
     watched: false,
+    html: buildEmbedDoc(EMBED_DOCS.stat, EMBED_CSP),
   },
   {
     id: 's6',
@@ -119,6 +128,7 @@ export const SHORTS: Short[] = [
     likes: 512,
     createdAgo: '3주 전',
     watched: false,
+    html: buildEmbedDoc(EMBED_DOCS.tall, EMBED_CSP),
   },
 ];
 
