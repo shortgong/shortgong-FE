@@ -3,6 +3,7 @@ import { Toast } from './components/Toast';
 import { StoreProvider } from './store/StoreProvider';
 import { ExploreScreen } from './screens/ExploreScreen';
 import { OnboardingScreen } from './screens/OnboardingScreen';
+import { QuizScreen } from './screens/QuizScreen';
 import { StudyHomeScreen } from './screens/StudyHomeScreen';
 import { WatchScreen } from './screens/WatchScreen';
 import { Placeholder } from './screens/Placeholder';
@@ -20,7 +21,7 @@ export default function App() {
         <Route path="/me" element={<Placeholder title="마이" />} />
         <Route path="/create" element={<Placeholder title="만들기" />} />
         <Route path="/sets" element={<Navigate to="/explore" replace />} />
-        <Route path="/quiz" element={<Placeholder title="퀴즈" />} />
+        <Route path="/quiz" element={<QuizScreen />} />
         <Route path="/watch" element={<WatchScreen />} />
         <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
