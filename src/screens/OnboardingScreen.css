@@ -1,0 +1,99 @@
+.screen.ob {
+  /* 스펙 팔레트 */
+  --ob-green: #078b57;
+  --ob-ink: #171b1a;
+  --ob-sub: #68716d;
+  --ob-bg: #f8f9f8;
+  --ob-mint: #e8f5ef;
+
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--ob-bg);
+  color: var(--ob-ink);
+  overflow: hidden;
+}
+
+/* ---------------- 상단 로고 ---------------- */
+.ob__head {
+  flex: none;
+  padding: 20px 24px 0;
+}
+
+.ob__wordmark {
+  font: 800 22px/1 var(--font);
+  letter-spacing: -0.03em;
+  color: var(--ob-ink);
+}
+
+/* ---------------- 본문 (가로 슬라이드) ---------------- */
+/* 세로 스크롤은 브라우저에 맡기고 가로만 스와이프로 잡는다 */
+.ob__viewport {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.ob__track {
+  display: flex;
+  height: 100%;
+  transition: transform 340ms var(--ease);
+  will-change: transform;
+}
+
+/* 드래그 중엔 손 위치에 즉시 붙어야 하므로 트랜지션을 끊는다 */
+.ob__track.is-dragging {
+  transition: none;
+}
+
+.ob__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+}
+
+.ob__title {
+  margin: 30px 0 0;
+  display: flex;
+  flex-direction: column;
+  font: 800 33px/1.28 var(--font);
+  letter-spacing: -0.035em;
+  color: var(--ob-ink);
+  /* 옆으로 지나가는 느낌 */
+  transition: opacity 300ms var(--ease), transform 340ms var(--ease);
+}
+
+.ob__line--accent {
+  color: var(--ob-green);
+}
+
+.ob__desc {
+  margin: 14px 0 0;
+  display: flex;
+  flex-direction: column;
+  font: 500 15px/23px var(--font);
+  color: var(--ob-ink);
+  transition: opacity 300ms var(--ease), transform 340ms var(--ease);
+}
+
+/* 활성화된 슬라이드만 펼쳐 보이고, 나머지는 살짝 물러나 있다 */
+.ob__slide .ob__title,
+.ob__slide .ob__desc,
+.ob__slide .ob__artWrap,
+.ob__slide .ob__art {
+  opacity: 0.25;
+  transform: translateX(14px);
+}
+
+.ob__slide.is-active .ob__title,
+.ob__slide.is-active .ob__desc,
+.ob__slide.is-active .ob__artWrap,
+.ob__slide.is-active .ob__art {
+  opacity: 1;
+  transform: none;
+}
