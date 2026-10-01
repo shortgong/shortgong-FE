@@ -63,3 +63,69 @@
   flex: 1;
   min-height: 0;
 }
+
+/* ---------- 상단: 세그먼트 진행바 + 태그 ---------- */
+.slide__top {
+  flex: none;
+  padding: 0 var(--gutter);
+}
+
+.slide__bars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.slide__bars > span {
+  position: relative;
+  flex: 1;
+  height: 2.5px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.26);
+}
+
+.slide__bars > span.is-done {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.slide__bars > span > i {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  transform-origin: left center;
+  animation: seg-fill linear forwards;
+  border-radius: var(--r-pill);
+}
+
+@keyframes seg-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.slide__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.slide__close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  margin: -10px -10px -10px 0;
+  border-radius: var(--r-pill);
+  color: #fff;
+  transition: background-color var(--dur) var(--ease);
+}
+
+.slide__close:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
