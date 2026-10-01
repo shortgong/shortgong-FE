@@ -69,3 +69,11 @@
 .explore__count {
   margin: 16px 2px 4px;
 }
+
+
+/* ---------------- 학습 세트 결과 목록 ---------------- */
+
+.explore__sets {
+  display: flex;
+  flex-direction: column;
+}
