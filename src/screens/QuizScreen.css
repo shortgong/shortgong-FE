@@ -69,3 +69,55 @@
   flex-direction: column;
   gap: 8px;
 }
+
+/* ---------- 채팅 버블 ---------- */
+.bubble {
+  max-width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  transition: opacity var(--dur) var(--ease);
+}
+
+.bubble.is-hidden {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+  padding-block: 0;
+  overflow: hidden;
+}
+
+.bubble--answer {
+  align-self: flex-start;
+  max-width: 88%;
+  background: var(--c-surface);
+  color: var(--c-ink);
+  border-bottom-left-radius: var(--r-xs);
+}
+
+.bubble--user {
+  align-self: flex-end;
+  max-width: 82%;
+  background: var(--c-brand);
+  color: #fff;
+  border-bottom-right-radius: var(--r-xs);
+}
+
+.bubble .t-body {
+  overflow-wrap: anywhere;
+}
+
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 15px;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: var(--c-ink);
+  animation: blink 900ms steps(2, start) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
