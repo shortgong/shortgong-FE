@@ -1,38 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { OAUTH_GOOGLE_URL } from '../api/config';
 
-const STEP_LABELS = ['계정 확인 중', '기록 불러오는 중', '로그인 중'];
+const STEP_LABELS = ['Google로 이동 중'];
 
 export const LOGIN_STEP_LABELS = STEP_LABELS;
 
+const CONSENT_KEY = 'shortgong.consent';
+
 /**
- * 목업 Google 로그인 흐름.
- * 실제 OAuth 연동 시 `finish` 콜백만 Google Identity Services로 바꾸면 된다.
+ * Google 로그인을 시작한다.
+ *
+ * Google 은 iframe 이나 XHR 에서 로그인 창을 띄우는 걸 막는다. 그래서 인증은
+ * 브라우저 통째 이동으로만 한다 — 백엔드 /oauth2/authorization/google 로 가면
+ * 거기서 인증하고, 백엔드가 OAuth 코드를 받은 뒤 교환 토큰을 붙여 이 앱의
+ * /oauth/callback 으로 돌려보낸다. accessToken 은 그 콜백이 받아 세운다.
+ *
+ * 동의 체크는 이동을 넘어 살아남아야 하므로 sessionStorage 에 남긴다.
  */
-export function useGoogleLogin(finish: () => void) {
-  const [agreed, setAgreed] = useState(false);
+export function useGoogleLogin() {
+  const [agreed, setAgreed] = useState(() => sessionStorage.getItem(CONSENT_KEY) === '1');
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState(0);
-  const [tick, setTick] = useState(0);
-  const timers = useRef<number[]>([]);
+  const [step] = useState(0);
 
-  useEffect(() => () => timers.current.forEach(clearInterval), []);
-
-  const login = () => {
+  const login = useCallback(() => {
     if (!agreed || loading) return;
+    sessionStorage.setItem(CONSENT_KEY, '1');
     setLoading(true);
-    setStep(0);
-    setTick(0);
+    window.location.assign(OAUTH_GOOGLE_URL);
+  }, [agreed, loading]);
 
-    timers.current.push(
-      window.setInterval(() => setStep((s) => Math.min(s + 1, STEP_LABELS.length - 1)), 430),
-      window.setInterval(() => setTick((t) => t + 1), 520),
-      window.setTimeout(() => {
-        timers.current.forEach(clearInterval);
-        timers.current = [];
-        finish();
-      }, 1500),
-    );
-  };
-
-  return { agreed, setAgreed, loading, step, tick, login };
+  return { agreed, setAgreed, loading, step, login };
 }
