@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { SetLine } from '../components/SetLine';
+import { SetCard } from '../components/SetCard';
 import { TabBar } from '../components/TabBar';
 import { TopBar } from '../components/TopBar';
 import { fmtSec, questionsOfSet, secondsOfSet, shortsOfSet } from '../data/content';
@@ -44,8 +44,11 @@ export function ExploreScreen() {
         <ul className="explore__sets">
           {list.map((set) => (
             <li key={set.id}>
-              <SetLine
+              <SetCard
                 title={set.title}
+                desc={set.desc}
+                topic={set.topic}
+                level={set.level}
                 tone={set.coverTone}
                 meta={`${shortsOfSet(set).length}편 · ${questionsOfSet(set.id).length}문제 · ${fmtSec(secondsOfSet(set))}`}
                 onClick={() => navigate(`/watch?set=${set.id}`)}

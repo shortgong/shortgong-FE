@@ -7,7 +7,8 @@ import { useShortScroller } from '../hooks/useShortScroller';
 import { useStore } from '../store/context';
 import './WatchScreen.css';
 
-const SEGMENT_MS = 5200;
+/* 세트에 속하지 않은 일반 피드 라벨 */
+const FREE_FEED_LABEL = '무순 세트';
 
 export function WatchScreen() {
   const navigate = useNavigate();
@@ -51,23 +52,27 @@ export function WatchScreen() {
 
   return (
     <div className="watch">
-      {studySet && (
-        <header className="watch__setbar">
+      {/* 상단 위치 표시는 세트/무순 공통. 왼쪽=무엇을 보고 있는지, 오른쪽=몇 번째 중 몇 번째 */}
+      <header
+        className="watch__pos"
+        aria-label={`${studySet ? studySet.title : FREE_FEED_LABEL} ${index + 1}번째, 전체 ${shorts.length}번째`}
+      >
+        {studySet && (
           <button type="button" className="watch__setExit" onClick={() => navigate('/explore')} aria-label="탐색으로">
             <Icon name="back" size={20} />
           </button>
-          <div className="watch__setInfo">
-            <p className="t-label-plain watch__setName">{studySet.title}</p>
-            <p className="t-caption-plain watch__setCount">
-              {Math.min(index + 1, shorts.length)}/{shorts.length}편
-            </p>
-          </div>
-        </header>
-      )}
+        )}
+        <p className="t-label-plain watch__posLabel" aria-hidden="true">
+          {studySet ? studySet.title : FREE_FEED_LABEL}
+        </p>
+        <p className="t-caption-plain watch__posCount" aria-hidden="true">
+          {index + 1}/{shorts.length}
+        </p>
+      </header>
 
       <div
         ref={stageRef}
-        className={`watch__stage ${studySet ? 'watch__stage--set' : ''}`}
+        className="watch__stage"
         {...dbl.bind}
       >
         {shorts.map((s, i) => {
@@ -85,28 +90,6 @@ export function WatchScreen() {
               <div className={`slide__bg slide__bg--${s.tone}`} aria-hidden="true" />
 
               <header className="slide__top">
-                <div
-                  className="slide__bars"
-                  role="progressbar"
-                  aria-label="재생 진행"
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                  aria-valuenow={active ? undefined : 0}
-                >
-                  {shorts.map((x, j) => (
-                    <span key={x.id} className={j < i ? 'is-done' : ''}>
-                      {j === i && (
-                        <i
-                          style={{
-                            animationDuration: `${SEGMENT_MS}ms`,
-                            animationPlayState: dbl.dragging ? 'paused' : 'running',
-                          }}
-                        />
-                      )}
-                    </span>
-                  ))}
-                </div>
-
                 <div className="slide__head">
                   <span className="chip">{s.tag}</span>
                   <button
