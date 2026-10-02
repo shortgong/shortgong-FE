@@ -70,7 +70,10 @@ const STAT = `<!doctype html>
 </html>`;
 
 /**
- * 긴 문서
+ * 긴 문서 — 피트 규칙(세로 넘침 금지)의 기준 픽스처.
+ *
+ * vh 기준으로 크기를 매기고, 목록을 space-between 으로 펼쳐 프레임에 정확히 맞춘다.
+ * 고정 px 로 쓰면 320x640 에서 프레임(453px) 을 넘겨 마지막 항목이 잘린다.
  */
 const TALL = `<!doctype html>
 <html lang="ko">
@@ -80,13 +83,29 @@ const TALL = `<!doctype html>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
-  body { margin: 0; padding: 16px; font: 500 14px/1.7 sans-serif; color: #eaf3ee; background: transparent; overflow: hidden; }
-  li { margin-bottom: 10px; }
+  body {
+    display: flex;
+    padding: clamp(10px, 2.2vh, 16px);
+    font: 500 clamp(11px, 1.85vh, 14px)/1.6 sans-serif;
+    color: #eaf3ee;
+    background: transparent;
+    overflow: hidden;
+  }
+  ul {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: space-between;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 </style>
 </head>
 <body>
   <ul>
-    ${Array.from({ length: 20 }, (_, i) => `<li>항목 ${i + 1}</li>`).join('\n    ')}
+    ${Array.from({ length: 16 }, (_, i) => `<li>항목 ${i + 1}</li>`).join('\n    ')}
   </ul>
 </body>
 </html>`;
@@ -112,6 +131,13 @@ const TTS = `<!DOCTYPE html>
   .text { font-size: 16px; font-weight: 700; line-height: 1.45; letter-spacing: -.01em; }
   #s { opacity: 0; transition: opacity .3s ease-in-out; min-height: 1.2em; }
   #s.show { opacity: 1; }
+  .cta {
+    margin-top: 2px; padding: 9px 18px; border: 0; border-radius: 999px;
+    font: 700 13px/1 system-ui, -apple-system, sans-serif;
+    color: #0f1412; background: #4fd39a; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(79,211,154,.22);
+  }
+  .cta:active { transform: scale(.97); }
   @keyframes pulse { 0% { transform: scale(.96); opacity: .5 } 100% { transform: scale(1.08); opacity: .9 } }
   .p { animation: pulse 1.2s ease-in-out infinite alternate; }
 </style>
@@ -124,6 +150,7 @@ const TTS = `<!DOCTYPE html>
   </svg>
   <div class="text" id="t">도함수의 핵심은<br/>변화율입니다</div>
   <div id="s">TTS 미지원</div>
+  <button class="cta" id="b" type="button">다시 듣기</button>
 <script>
   try { Object.defineProperty(window, 'location', { writable: false, configurable: false, value: {} }); } catch (e) {}
   if (window.open) window.open = function() { return null; };
@@ -136,11 +163,15 @@ const TTS = `<!DOCTYPE html>
   u.onstart = function() { sEl.classList.add('show'); sEl.textContent = '말하는 중...'; };
   u.onend = function() { sEl.textContent = '발화 완료'; };
   u.onerror = function(e) { sEl.classList.add('show'); sEl.textContent = e.error || 'synthesis-failed'; };
-  window.speechSynthesis.cancel();
   var v = null;
   try { var voices = window.speechSynthesis.getVoices(); for (var i = 0; i < voices.length; i++) { if (voices[i].lang && voices[i].lang.indexOf('ko') === 0) { v = voices[i]; break; } } } catch (e) {}
   if (v) u.voice = v;
-  window.setTimeout(function() { try { window.speechSynthesis.speak(u); } catch (e) { sEl.classList.add('show'); sEl.textContent = 'speak 호출됨'; } }, 250);
+  function speak() {
+    window.speechSynthesis.cancel();
+    try { window.speechSynthesis.speak(u); } catch (e) { sEl.classList.add('show'); sEl.textContent = 'speak 호출됨'; }
+  }
+  document.getElementById('b').addEventListener('click', speak);
+  window.setTimeout(speak, 250);
 </script>
 </body>
 </html>`;

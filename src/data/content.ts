@@ -36,6 +36,7 @@ export const SHORTS: Short[] = [
     likes: 1240,
     createdAgo: '3분 전',
     watched: true,
+    html: buildEmbedDoc(EMBED_DOCS.tts, EMBED_CSP),
   },
   {
     id: 's2',
