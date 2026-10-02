@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
+import { ShortEmbed } from '../components/ShortEmbed';
 import { findSet, fmtCount, shortsOfSet } from '../data/content';
 import { useDoubleTapLike } from '../hooks/useDoubleTapLike';
 import { useShortScroller } from '../hooks/useShortScroller';
@@ -103,7 +104,12 @@ export function WatchScreen() {
                 </div>
               </header>
 
-              <div className="slide__spacer" />
+              {/* 임베드가 없는 쇼츠는 기존 여백을 유지해 레이아웃이 무너지지 않게 한다 */}
+              {s.html ? (
+                <ShortEmbed id={s.id} html={s.html} tone={s.tone} title={s.title} active={active} />
+              ) : (
+                <div className="slide__spacer" />
+              )}
 
               {/* 우측 레일 — 하단 메타와 겹치지 않도록 세로 중앙에 둔다 */}
               <nav className="rail" aria-label="쇼츠 액션">
