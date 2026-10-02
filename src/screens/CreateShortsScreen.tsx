@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ActionDock } from '../components/ActionDock';
 import { Button } from '../components/Button';
@@ -7,6 +7,7 @@ import { CreateProgressCard } from '../components/CreateProgressCard';
 import { Icon } from '../components/Icon';
 import { TOPICS } from '../data/content';
 import { useMakingProgress } from '../hooks/useMakingProgress';
+import { useAuth } from '../store/authContext';
 import { useStore } from '../store/context';
 import './CreateShortsScreen.css';
 
@@ -16,16 +17,30 @@ const EXAMPLES = ['수학 미적분 개념 정리', '토익 필수 단어 100', 
 export function CreateShortsScreen() {
   const navigate = useNavigate();
   const { toast } = useStore();
+  const { status } = useAuth();
 
   const [topic, setTopic] = useState('');
   const [attached, setAttached] = useState<string | null>(null);
-  const { stage, pct, start, reset } = useMakingProgress(() => toast('쇼츠 만들었어요'));
+  const onCreated = useCallback(() => toast('쇼츠 만들었어요'), [toast]);
+  const onFailed = useCallback((msg: string) => toast(msg), [toast]);
+  const { stage, pct, video, start, reset } = useMakingProgress({ onDone: onCreated, onError: onFailed });
 
-  const busy = stage !== 'idle';
-  const canSubmit = topic.trim().length > 0 && !busy;
+  const busy = stage === 'making';
+  const canSubmit = topic.trim().length > 0 && !busy && stage === 'idle';
 
   const pickTopic = (t: string) => {
     setTopic(t);
+  };
+
+  /* 만들려면 토큰이 있어야 한다 — 화면은 열어두고, 누른 순간 로그인으로 보낸다.
+     401 을 그대로 노출하면 "무슨 오류인지"를 알 수 없으므로 미리 막는다. */
+  const submit = () => {
+    if (status !== 'authed') {
+      toast('로그인하면 쇼츠를 만들 수 있어요');
+      navigate('/onboarding');
+      return;
+    }
+    start(topic);
   };
 
   return (
@@ -119,7 +134,10 @@ export function CreateShortsScreen() {
       <ActionDock>
         {stage === 'done' ? (
           <>
-            <Button variant="primary" onClick={() => navigate('/watch')}>
+            <Button
+              variant="primary"
+              onClick={() => navigate(video ? `/watch?video=${video.id}` : '/watch')}
+            >
               만들어진 쇼츠 바로 보기
             </Button>
             <Button
@@ -133,8 +151,19 @@ export function CreateShortsScreen() {
               하나 더 만들기
             </Button>
           </>
+        ) : stage === 'failed' ? (
+          <Button
+            variant="primary"
+            onClick={() => {
+              reset();
+              setTopic('');
+              setAttached(null);
+            }}
+          >
+            다시 입력하기
+          </Button>
         ) : (
-          <Button variant="primary" disabled={!canSubmit} onClick={start}>
+          <Button variant="primary" disabled={!canSubmit} onClick={submit}>
             {stage === 'making' ? `만드는 중 ${pct}%` : '쇼츠 만들기'}
           </Button>
         )}

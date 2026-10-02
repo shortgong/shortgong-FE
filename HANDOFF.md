@@ -5,6 +5,8 @@
 - Typecheck/lint/build: PASS. 회귀 11종 + `ttscheck` 31/31 + `embedcheck` 39/39 통과.
 - 임베드: 피트 문서는 320×640 / 360×780 / 390×844 / 430×932 전부 안 잘림.
 - 인증: Google OAuth → 백엔드 콜백 → FE `/oauth/callback?key=` → exchange → accessToken(메모리).
+- 쇼츠 생성: `POST /api/video` → `PROCESSING` 면 `GET /api/video/{id}` 폴링 → `COMPLETED` 면 `draft`(임베드 HTML)로 렌더. 예전 타이머 흉내는 걷어냈다.
+- `MeScreen` 로그아웃이 `DELETE /api/auth/logout` 을 실제로 호출한다(쿠키가 안 지워지면 다음 방문에 되살아난다).
 
 ## Decisions
 - JS required for TTS → sandbox `allow-scripts`, CSP is defense (no allow-same-origin).
@@ -32,5 +34,6 @@
 ```bash
 cd /home/user/Desktop/workspace/shortgong/shortgong-FE
 npm run dev            # localhost:5199 (127.0.0.1 로 열면 쿠키가 안 넘어간다)
-cd /tmp/opencode && node oauthe2e.mjs && node embedcheck.mjs && node allroutes.mjs
+cd /tmp/opencode && node oauthe2e.mjs && node createcheck.mjs && node logoutcheck.mjs && node allroutes.mjs
+# embedcheck/ttscheck 는 stdout 이 아니라 embedcheck.out 파일에 쓴다
 ```

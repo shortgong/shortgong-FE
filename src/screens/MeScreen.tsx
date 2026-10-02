@@ -7,6 +7,7 @@ import { MeStats } from '../components/MeStats';
 import { TabBar } from '../components/TabBar';
 import { TopBar } from '../components/TopBar';
 import { STUDY_SETS } from '../data/content';
+import { useAuth } from '../store/authContext';
 import { useStore } from '../store/context';
 import './MeScreen.css';
 
@@ -28,6 +29,16 @@ const rows: MeRow[] = [
 export function MeScreen() {
   const navigate = useNavigate();
   const { likedList, toast } = useStore();
+  const { signOut, status } = useAuth();
+
+  const onLogout = () => {
+    /* 로그인 상태일 때만 쿠키를 지운다 — 서버에 세션이 없는데 지우러 갈 이유가 없다 */
+    if (status === 'authed') {
+      signOut();
+      toast('로그아웃했어요');
+    }
+    navigate('/onboarding', { replace: true });
+  };
 
   return (
     <div className="screen me">
@@ -58,8 +69,8 @@ export function MeScreen() {
           }}
         />
 
-        <button type="button" className="me__logout t-label" onClick={() => navigate('/onboarding')}>
-          로그아웃
+        <button type="button" className="me__logout t-label" onClick={onLogout}>
+          {status === 'authed' ? '로그아웃' : '로그인하러 가기'}
         </button>
       </div>
       <TabBar />

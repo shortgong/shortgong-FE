@@ -32,6 +32,15 @@ ShortGong FE — React + Vite + TypeScript. Mobile-first PWA.
 - A reload re-issues via `POST /api/auth/token/refresh` (cookie). Gated on the `localStorage.shortgong.session` hint so anonymous visitors make **zero** API calls.
 - `AUTH_ORIGIN` (absolute) is separate from `API_BASE` — OAuth navigation must never become a relative path, or it lands back in the SPA and gets swallowed by the catch-all route.
 
+## Video API
+- `POST /api/video` body is `{ content: string }` (≤10000 chars) → `{ id, status }`. Ingest is async: `PROCESSING` means the HTML is not ready yet.
+- `useMakingProgress` follows it for real: POST, then poll `GET /api/video/{id}` every 1.5s until `COMPLETED`/`FAILED`. `done`/`failed` must come from the response — never from a timer.
+- `pct` is not reported by the backend. The tick toward 99% is decoration only; 100 is printed once the response settles.
+- `VideoResponse.draft` holds the ingest output (self-contained HTML) → `ShortEmbed` `srcDoc`. If `draft` is empty, render nothing (`toShort` maps it to `undefined`).
+- `WatchScreen?video=<id>` renders exactly one server video. Everything else stays on mock data — there is no list endpoint yet.
+- Creating needs a token, but the screen stays reachable: an anonymous submit routes to `/onboarding`. Never let a raw 401 reach the UI.
+- Cancel with `liveRef`, not a cleared timer — an in-flight poll must not resurrect a reset screen.
+
 ## Data
 - `src/data/content.ts`: study sets, shorts, questions. `Short.html?` holds embed HTML for that short.
 - `src/data/embedDocs.ts`: mock embed HTML (CARD/STAT/TALL/TTS). TTS uses ko-KR SpeechSynthesis with `onstart/onend/onerror` logging to `#s`.

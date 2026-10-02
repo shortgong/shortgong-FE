@@ -1,8 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { ShortEmbed } from '../components/ShortEmbed';
+import { fetchVideo, toShort } from '../api/videos';
 import { findSet, fmtCount, shortsOfSet } from '../data/content';
+import type { Short } from '../data/content';
 import { useDoubleTapLike } from '../hooks/useDoubleTapLike';
 import { useShortScroller } from '../hooks/useShortScroller';
 import { useStore } from '../store/context';
@@ -16,10 +18,27 @@ export function WatchScreen() {
   const [params] = useSearchParams();
   const { state, toggleLike, setWatched, completeSet, toast } = useStore();
 
-  /* ---------- 모드: 일반 피드 vs 학습 세트 ---------- */
+  /* ---------- 모드: 서버 영상 1개 vs 일반 피드 vs 학습 세트 ---------- */
+
+  /* ?video=<id> — 방금 만든 쇼츠. 서버에서 인제스트된 HTML 을 그대로 띄운다 */
+  const videoId = params.get('video');
+  const [remote, setRemote] = useState<Short | null>(null);
+  const [remoteFailed, setRemoteFailed] = useState(false);
+
+  useEffect(() => {
+    if (!videoId) return;
+    let alive = true;
+    fetchVideo(Number(videoId))
+      .then((v) => alive && setRemote(toShort(v)))
+      .catch(() => alive && setRemoteFailed(true));
+    return () => {
+      alive = false;
+    };
+  }, [videoId]);
+
   const studySet = findSet(params.get('set') ?? undefined);
   const setShorts = useMemo(() => (studySet ? shortsOfSet(studySet) : []), [studySet]);
-  const shorts = studySet ? setShorts : state.shorts;
+  const shorts = videoId ? (remote ? [remote] : []) : studySet ? setShorts : state.shorts;
 
   /* ?at=<id> 딥링크: 해당 쇼츠 위치로 바로 이동 (일반 모드 전용) */
   const deepLinkAt = params.get('at');
@@ -36,8 +55,8 @@ export function WatchScreen() {
   });
 
   const dbl = useDoubleTapLike({
-    getId: () => shorts[indexRef.current].id,
-    liked: () => !!state.likes[shorts[indexRef.current].id],
+    getId: () => shorts[indexRef.current]?.id ?? '',
+    liked: () => !!state.likes[shorts[indexRef.current]?.id ?? ''],
     onLike: toggleLike,
   });
 
@@ -49,6 +68,26 @@ export function WatchScreen() {
   }, [index, studySet, shorts.length, setWatched, completeSet]);
 
   const current = shorts[index];
+
+  /* 서버 영상이 아직 오지 않았으면 빈 화면 대신 이유를 말해 준다 */
+  if (!current) {
+    return (
+      <div className="watch">
+        <div className="watch__sr" role="status" aria-live="polite">
+          {remoteFailed ? '영상을 불러오지 못했어요' : '불러오는 중'}
+        </div>
+        {remoteFailed && (
+          <div className="watch__pos">
+            <button type="button" className="watch__setExit" onClick={() => navigate('/home')} aria-label="홈으로">
+              <Icon name="back" size={20} />
+            </button>
+            <p className="t-label-plain watch__posLabel">영상을 불러오지 못했어요</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const isLiked = !!state.likes[current.id];
 
   return (
