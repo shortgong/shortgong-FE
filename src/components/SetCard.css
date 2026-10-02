@@ -1,0 +1,106 @@
+.setcard {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  text-align: left;
+  color: var(--c-ink);
+  border-radius: var(--r-xl);
+  background: var(--c-surface);
+  transition: opacity var(--dur) var(--ease);
+}
+
+.setcard:active {
+  opacity: 0.6;
+}
+
+/* ---------- 표지 (전체 폭 색 블록) ---------- */
+.setcard__cover {
+  display: block;
+  flex: none;
+  height: 116px;
+}
+
+.setcard__cover--mint {
+  background: var(--tone-mint);
+}
+.setcard__cover--sky {
+  background: var(--tone-sky);
+}
+.setcard__cover--lilac {
+  background: var(--tone-lilac);
+}
+.setcard__cover--sand {
+  background: var(--tone-sand);
+}
+
+/* ---------- 본문 ---------- */
+.setcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px 16px;
+}
+
+.setcard__tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.setcard__topic {
+  font: var(--t-caption-plain);
+  letter-spacing: -0.01em;
+  color: var(--c-ink-muted);
+}
+
+.setcard__level {
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-surface-2);
+  font: var(--t-caption-plain);
+  letter-spacing: -0.01em;
+  color: var(--c-ink-2);
+}
+
+.setcard__title {
+  font: 700 17px/24px var(--font);
+  letter-spacing: -0.02em;
+  color: var(--c-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.setcard__desc {
+  font: 400 13px/19px var(--font);
+  letter-spacing: -0.01em;
+  color: var(--c-ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- 하단: 요약 + 이동 ---------- */
+.setcard__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.setcard__meta {
+  font: var(--t-label-plain);
+  letter-spacing: -0.01em;
+  color: var(--c-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.setcard__go {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--c-ink-faint);
+}
