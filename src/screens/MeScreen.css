@@ -26,6 +26,9 @@
   border-radius: var(--r-pill);
   background: var(--c-brand-soft);
   color: var(--c-brand-ink);
+  /* 백엔드 프로필 이미지를 그대로 보여줄 때 글자 대신 쓴다 */
+  font: var(--t-label);
+  object-fit: cover;
 }
 
 .profile__text {
