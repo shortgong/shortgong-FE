@@ -36,6 +36,20 @@
   백엔드 문서가 깨진 건지 앱이 깨진 건지 구분할 수 없기 때문.
 - 조회는 인증 필요(401). `enabled: !!getAccessToken()` — 익명이면 훑지 않고 로컬 샘플로 떨어진다.
 
+## 음성 정지 (쇼츠에서 다른 화면/다음 슬라이드로 갈 때)
+- 증상: 쇼츠를 넘기거나 다른 화면으로 이동해도 TTS 가 계속 울린다.
+- 원인 2가지가 겹쳐 있었다:
+  1. `sandbox` 에 `allow-same-origin` 이 없어 부모가 자식의 speechSynthesis 에 접근할 수 없다.
+     → 슬라이드를 바꿔도 iframe 이 남아 있으면 계속 울린다.
+  2. `cancel()` 만으로는 안 된다. 실물 문서는 `utterance.onend → playScene(next)` 로 발화를 이어 붙이고,
+     취소된 발화에도 Chrome 이 onend 를 쏴서 다음 발화가 다시 큐에 오른다. 버려진 문서의 발화라 마비가 안 된다.
+- 해결: `src/embed/embedLifecycle.ts` 의 `withLifecycle()` 가 문서 머리에 가드를 주입해
+  `pagehide`/`unload` 에서 cancel + `speak` 무음화. 그리고 `ShortEmbed` 는 비활성 슬라이드의 iframe 을
+  마운트하지 않는다(되살릴 방법이 없으니 없애는 게 유일한 방법).
+- 검증(`/tmp/opencode/ttscheck.mjs`, 이 환경엔 TTS voice 가 없어 소리 자체는 못 들음):
+  넘길 때 teardown 실행, 화면 이동 시 teardown 실행, 이동 후 iframe 0개,
+  새로 마운트된 iframe 의 `speak` 는 무음으로 바뀌지 않음.
+
 ## Pending/Next
 - **백엔드 CORS 는 백엔드에서 처리하기로 했다.** FE 는 프록시를 쓰지 않고
   `http://localhost:8080` 을 직접 때린다 (`VITE_API_BASE=http://localhost:8080`).

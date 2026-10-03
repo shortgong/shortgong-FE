@@ -42,9 +42,24 @@ ShortGong FE — React + Vite + TypeScript. Mobile-first PWA.
 - Logout calls `queryClient.clear()` — otherwise the previous member/video stays cached and flashes for the next person who logs in.
 - Cache is in memory, so a hard reload always refetches. Only SPA navigation can be a cache hit; do not write tests that expect otherwise.
 
+## 임베드 수명주기 (발화 정지)
+- TTS 는 iframe **안**에서 돈다. `sandbox` 에 `allow-same-origin` 이 없어 문서 오리진이 불투명하므로
+  부모는 `iframe.contentWindow.speechSynthesis` 에 손대지 못한다. → 자식 안에서만 멈출 수 있다.
+- 그래서 `ShortEmbed` 가 `withLifecycle(html)` 로 문서 머리에 가드를 주입한다.
+  `pagehide`/`unload` 에서 `speechSynthesis.cancel()` 하고 **`speak` 를 무음으로 바꾼다**.
+  - cancel 만으로는 부족하다. author 가 `utterance.onend → playScene(next)` 로 발화를 이어 붙이는데,
+    취소된 발화에도 Chrome 은 onend 를 쏜다 → 곧바로 다음 발화가 다시 큐에 오른다.
+    그 발화는 이미 버려진 문서의 것이므로 마비가 안 되고, 사용자가 다른 화면으로 갔는데도 말이 계속된다.
+  - `speak` 를 막아야 재예약이 통과하지 못한다. cancel **뒤에** 막아야 한다(onend 가 비동기).
+- ★ 비활성 슬라이드는 iframe 을 아예 마운트하지 않는다. 되살릴 방법이 없으니 없애는 게 유일한 방법이고,
+  슬라이드마다 상태가 새지 않는다. 보이는 건 활성 한 장뿐이라 화면 변화는 없다.
+- 주입 위치는 `<head>` 안쪽(없으면 `<html>`, `<body>`, 최후 prepend) — 맨 앞에 넣으면
+  doctype 이 밀려 quirks 모드가 된다.
+- 막은 것은 그 문서뿐이다. 새로 마운트된 iframe 의 `speak` 는 살아 있다(회귀 테스트로 확인).
+
 ## Feed (목록 API 가 없을 때)
 - There is no list endpoint. `videos.KNOWN_VIDEO_IDS` holds the ids that are known to exist — currently `1, 2, 9, 14`. `useRandomServerShort()` picks one at random and fetches **that one**. Do not rescan a range: probing ids that do not exist just produces 404s.
-- `content` is the self-contained HTML document and is what goes into `ShortEmbed`'s `srcDoc`. **`draft` is the plain-text transcript** — putting it in an iframe renders a wall of text, which is the bug this rule exists to prevent.
+- `content` is the self-contained HTML document and is what goes into `ShortEmbed`'s `srcDoc` (after `withLifecycle`). **`draft` is the plain-text transcript** — putting it in an iframe renders a wall of text, which is the bug this rule exists to prevent.
 - The pick is random but **stable**: it happens inside `queryFn`, so re-renders do not reshuffle. `invalidateQueries({ queryKey: qk.feed })` rerolls.
 - Every `ShortEmbed` in `WatchScreen` renders `serverVideo?.content ?? s.html`, so one real video fills every slide. Deliberate: if one card renders it and the others do not, you cannot tell whether the backend document is broken or the app is.
 - The query is `enabled: !!getAccessToken()` — `GET /api/video/{id}` answers 401 (see HANDOFF), so an anonymous visitor never scans and falls back to the local sample shorts.

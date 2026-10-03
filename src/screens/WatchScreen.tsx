@@ -128,7 +128,6 @@ export function WatchScreen() {
 
               <header className="slide__top">
                 <div className="slide__head">
-                  <span className="chip">{s.tag}</span>
                   <button
                     type="button"
                     className="slide__close"
