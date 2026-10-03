@@ -60,9 +60,9 @@ export function ExploreScreen() {
         {list.length === 0 && (
           <div className="explore__empty">
             <p className="t-subtitle">"{q}" 세트 검색 결과가 없어요</p>
-            <p className="t-body muted">다른 키워드로 검색하거나 새 쇼츠로 세트를 만들어 보세요</p>
+            <p className="t-body muted">다른 키워드로 검색하거나 새 세트를 만들어 보세요</p>
             <button type="button" className="explore__empty-cta t-label" onClick={() => navigate('/create')}>
-              쇼츠 만들러 가기
+              세트 만들러 가기
             </button>
           </div>
         )}

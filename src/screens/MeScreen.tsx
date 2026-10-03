@@ -42,19 +42,13 @@ export function MeScreen() {
 
   /* 닉네임·프사는 백엔드가 준 값만 쓴다 — 로그인 전에는 없는 값을 만들어내지 않는다 */
   const name = user?.username ?? (status === 'booting' ? '불러오는 중' : '로그인이 필요해요');
-  const tagline = user?.role === 'ADMIN' ? '운영자 계정이에요' : '오늘도 3분, 이어가 볼까요';
 
   return (
     <div className="screen me">
       <TopBar title="마이" back={false} />
 
       <div className="me__scroll">
-        <MeProfile
-          name={name}
-          tagline={tagline}
-          imageUrl={user?.profileImageUrl ?? null}
-          onEdit={() => toast('프로필 편집은 준비 중이에요')}
-        />
+        <MeProfile name={name} imageUrl={user?.profileImageUrl ?? null} />
 
         <MeStats stats={STATS} />
 

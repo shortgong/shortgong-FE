@@ -3,7 +3,7 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  padding: 10px 0;
+  padding: 12px 0;
   text-align: left;
   color: var(--c-ink);
   border-top: 1px solid var(--c-hairline);
@@ -14,11 +14,11 @@
   opacity: 0.55;
 }
 
-/* ---------- 표지 (단색 블록) ---------- */
+/* ---------- 표지 (9:16 세로 포스터) ---------- */
 .setline__cover {
   flex: none;
-  width: 44px;
-  height: 44px;
+  width: 45px;
+  aspect-ratio: 9 / 16;
   border-radius: var(--r-xs);
 }
 
@@ -69,28 +69,4 @@
   width: 22px;
   height: 22px;
   color: var(--c-ink-faint);
-}
-
-/* ---------- 홈 상단 대표 세트 ---------- */
-.setline--feature {
-  gap: 14px;
-  padding: 16px;
-  border: 0;
-  border-radius: var(--r-xl);
-  background: var(--c-surface);
-}
-
-.setline--feature .setline__cover {
-  width: 68px;
-  height: 68px;
-  border-radius: var(--r-md);
-}
-
-.setline--feature .setline__title {
-  font: 700 17px/24px var(--font);
-  letter-spacing: -0.02em;
-}
-
-.setline--feature .setline__meta {
-  font-size: 13px;
 }

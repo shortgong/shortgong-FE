@@ -188,6 +188,10 @@ export const STUDY_SETS: StudySet[] = [
 
 export const findSet = (id: string | undefined) => STUDY_SETS.find((s) => s.id === id);
 
+/** 인기 순 — 세트 길이(문제 수) 기준. 목데이터라 정렬만 하고 숫자를 새로 만들지 않는다 */
+export const popularSets = () =>
+  [...STUDY_SETS].sort((a, b) => questionsOfSet(b.id).length - questionsOfSet(a.id).length);
+
 export const secondsOfSet = (set: StudySet) => shortsOfSet(set).reduce((n, s) => n + s.seconds, 0);
 
 export const shortsOfSet = (set: StudySet) =>

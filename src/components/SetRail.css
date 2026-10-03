@@ -1,0 +1,78 @@
+/* 가로 스크롤 레일 — 세로 레이아웃을 유지한 채로 화면을 넘기지 않는다 */
+.srail {
+  display: flex;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 4px var(--gutter) 2px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.srail::-webkit-scrollbar {
+  display: none;
+}
+
+.srail:focus-visible {
+  outline: 1.5px solid var(--c-brand-ink);
+  outline-offset: -2px;
+  border-radius: var(--r-sm);
+}
+
+.srail__item {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+/* ---------- 인기 세트 타일 (표지 9:16) ---------- */
+.settile {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 122px;
+  text-align: left;
+  color: var(--c-ink);
+  transition: opacity var(--dur) var(--ease);
+}
+
+.settile:active {
+  opacity: 0.6;
+}
+
+.settile__cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  border-radius: var(--r-md);
+}
+
+.settile__cover--mint {
+  background: var(--tone-mint);
+}
+.settile__cover--sky {
+  background: var(--tone-sky);
+}
+.settile__cover--lilac {
+  background: var(--tone-lilac);
+}
+.settile__cover--sand {
+  background: var(--tone-sand);
+}
+
+.settile__title {
+  font: 600 12px/17px var(--font);
+  letter-spacing: -0.01em;
+  color: var(--c-ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settile__meta {
+  font: 400 11px/15px var(--font);
+  letter-spacing: -0.0117em;
+  color: var(--c-ink-faint);
+  font-variant-numeric: tabular-nums;
+}

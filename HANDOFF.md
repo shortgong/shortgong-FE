@@ -50,6 +50,22 @@
   넘길 때 teardown 실행, 화면 이동 시 teardown 실행, 이동 후 iframe 0개,
   새로 마운트된 iframe 의 `speak` 는 무음으로 바뀌지 않음.
 
+## 세트 단위 전환 (6 가지 요구사항 반영)
+1. **쇼츠 단독 감상 삭제** — `WatchScreen` 은 세트로만 진입. `?set=`(정상) / `?video=`(생성 직후 미리보기).
+   세트 없이 오면 `/explore` 로 되돌린다. 옛 `state.shorts` 피드와 `?at=` 딥링크,
+   `useShortScroller` 의 `deepIndex` 인자까지 걷어냈다.
+2. **표지 9:16 통일** — `SetCard` / `SetRail` / `SetLine` 모두 `aspect-ratio: 9/16`.
+   `SetCard` 는 세로 카드가 아니라 가로 카드로 바꿔 표지를 왼쪽에 놓았다.
+   (세로로 두면 9:16 표지가 폭을 먹어 카드가 화면 높이만큼 늘어진다)
+   홈의 `인기 쇼츠` 레일은 `ShortRail` → **`SetRail`** 로 교체했고, `ShortRail` 은 삭제했다.
+3. **생성 = 텍스트만, 세트 생성** — 분야 칩·자료 첨부(`CreateAttach`) 삭제. 문구를 세트 생성으로 통일.
+4. **홈 정리** — 인사말 헤더와 AI 추천 대표 세트 블록 삭제. `인기 쇼츠` → `인기 세트`.
+5. **마이 한 줄 소개 삭제**
+6. **마이 편집 버튼 삭제**
+
+주의: 레일과 '다른 세트' 목록이 겹치지 않게 `SET_RAIL_COUNT` 로 나눴다.
+세트가 6개 이하(현재 목데이터 3개)라 목록 쪽은 비어 있어 보이지 않는다 — 버그가 아니다.
+
 ## Pending/Next
 - **백엔드 CORS 는 백엔드에서 처리하기로 했다.** FE 는 프록시를 쓰지 않고
   `http://localhost:8080` 을 직접 때린다 (`VITE_API_BASE=http://localhost:8080`).

@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { ChannelRail } from '../components/ChannelRail';
 import { Icon } from '../components/Icon';
+import { SET_RAIL_COUNT, SetRail } from '../components/SetRail';
 import { SetLine } from '../components/SetLine';
-import { ShortRail } from '../components/ShortRail';
 import { TabBar } from '../components/TabBar';
-import { STUDY_SETS, fmtSec, questionsOfSet, secondsOfSet, shortsOfSet } from '../data/content';
+import { fmtSec, popularSets, questionsOfSet, secondsOfSet, shortsOfSet } from '../data/content';
 import { useStore } from '../store/context';
 import './StudyHomeScreen.css';
 
@@ -15,9 +15,8 @@ export function StudyHomeScreen() {
   const { state, tip, nextTip, setQuery, commitQuery, clearRecent, toast } = useStore();
   const [showRecent, setShowRecent] = useState(false);
 
-  const [first, ...rest] = STUDY_SETS;
-  const firstSecs = shortsOfSet(first).reduce((n, s) => n + s.seconds, 0);
-  const firstQs = questionsOfSet(first.id).length;
+  /* 레일이 밀어낸 나머지 세트만 목록으로 — 같은 세트를 두 번 보여주지 않는다 */
+  const moreSets = popularSets().slice(SET_RAIL_COUNT);
 
   const search = () => {
     if (!state.query.trim()) {
@@ -37,16 +36,12 @@ export function StudyHomeScreen() {
     navigate('/explore');
   };
 
-  const pickShort = (id: string) => navigate(`/watch?at=${id}`);
+  /* 세트 단위로만 진입한다 — 쇼츠 하나만 따로 보는 길은 없다 */
+  const pickSet = (id: string) => navigate(`/watch?set=${id}`);
 
   return (
     <div className="screen">
       <div className="screen__body">
-        <header className="home__head">
-          <h1 className="t-display home__greeting">안녕하세요</h1>
-          <p className="t-body muted dim home__tagline">무엇을 배워볼까요</p>
-        </header>
-
         <div className="section home__search">
           <div className="searchbar">
             <span className="searchbar__icon" aria-hidden="true">
@@ -102,43 +97,40 @@ export function StudyHomeScreen() {
           )}
         </div>
 
-        <div className="section home__feature">
-          <SetLine
-            feature
-            title={first.title}
-            tone={first.coverTone}
-            meta={`${shortsOfSet(first).length}편 · ${firstQs}문제 · ${fmtSec(firstSecs)}`}
-            onClick={() => navigate(`/watch?set=${first.id}`)}
-          />
-        </div>
-
         <div className="section home__block-head">
-          <h2 className="t-title">다른 세트</h2>
+          <h2 className="t-title">인기 세트</h2>
           <button type="button" className="t-label-plain muted home__more" onClick={() => navigate('/explore')}>
-            탐색
+            더보기
           </button>
         </div>
 
-        <ul className="section home__sets">
-          {rest.map((set) => (
-            <li key={set.id}>
-              <SetLine
-                title={set.title}
-                tone={set.coverTone}
-                meta={`${shortsOfSet(set).length}편 · ${questionsOfSet(set.id).length}문제 · ${fmtSec(secondsOfSet(set))}`}
-                onClick={() => navigate(`/watch?set=${set.id}`)}
-              />
-            </li>
-          ))}
-        </ul>
-
-        <div className="section home__block-head">
-          <h2 className="t-title">인기 쇼츠</h2>
-        </div>
-
         <div className="home__rail">
-          <ShortRail onPick={pickShort} />
+          <SetRail onPick={pickSet} />
         </div>
+
+        {moreSets.length > 0 && (
+          <>
+            <div className="section home__block-head">
+              <h2 className="t-title">다른 세트</h2>
+              <button type="button" className="t-label-plain muted home__more" onClick={() => navigate('/explore')}>
+                탐색
+              </button>
+            </div>
+
+            <ul className="section home__sets">
+              {moreSets.map((set) => (
+                <li key={set.id}>
+                  <SetLine
+                    title={set.title}
+                    tone={set.coverTone}
+                    meta={`${shortsOfSet(set).length}편 · ${questionsOfSet(set.id).length}문제 · ${fmtSec(secondsOfSet(set))}`}
+                    onClick={() => pickSet(set.id)}
+                  />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
         <div className="section home__block-head">
           <h2 className="t-title">채널</h2>
@@ -165,7 +157,7 @@ export function StudyHomeScreen() {
 
         <div className="section home__create">
           <Button onClick={() => navigate('/create')}>
-            새 쇼츠 만들기
+            새 세트 만들기
           </Button>
         </div>
       </div>
