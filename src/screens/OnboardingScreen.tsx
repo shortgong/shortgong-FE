@@ -9,7 +9,7 @@ import './OnboardingScreen.css';
 export function OnboardingScreen() {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
-  const { agreed, setAgreed, loading, step, login } = useGoogleLogin(() => navigate('/home'));
+  const { agreed, setAgreed, loading, step, login } = useGoogleLogin();;
   const deck = useSwipeDeck({
     count: ONBOARDING_PAGES.length,
     index: page,

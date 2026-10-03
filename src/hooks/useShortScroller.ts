@@ -2,18 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 /**
  * 스냅 스크롤 스테이지와 현재 쇼츠 인덱스를 맞추고,
- * 딥링크/이어 듣기 진입과 키보드 세로 이동을 담당한다.
+ * 이어 듣기 진입과 키보드 세로 이동을 담당한다.
  */
 export function useShortScroller({
   count,
-  deepIndex,
   resumeIndex,
   onMute,
 }: {
   count: number;
-  /** ?at=<id> 로 지정된 위치. 없으면 -1 */
-  deepIndex: number;
-  /** 세트 모드에서 마지막 감상 지점 */
+  /** 세트 안에서 마지막 감상 지점 */
   resumeIndex: number;
   onMute: () => void;
 }) {
@@ -44,15 +41,14 @@ export function useShortScroller({
     };
   }, []);
 
-  /* 진입 즉시 지정 위치로 (부트스트랩 뒤 첫 렌더에서 clientHeight가 있다) */
+  /* 진입 즉시 이어 듣기 위치로 (부트스트랩 뒤 첫 렌더에서 clientHeight가 있다) */
   useEffect(() => {
-    const target = deepIndex >= 0 ? deepIndex : resumeIndex;
-    if (target < 0) return;
+    if (resumeIndex < 0) return;
     const el = ref.current;
     if (!el) return;
-    el.scrollTop = target * el.clientHeight;
-    setIndex(target);
-  }, [deepIndex, resumeIndex]);
+    el.scrollTop = resumeIndex * el.clientHeight;
+    setIndex(resumeIndex);
+  }, [resumeIndex]);
 
   /* ---------- 2. 세로 세그먼트 바로가기 ---------- */
   const goTo = useCallback(

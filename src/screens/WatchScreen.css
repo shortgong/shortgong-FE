@@ -72,10 +72,11 @@
 
 
 
+/* 칩이 없어졌으니 오른쪽 정렬 하나뿐이다 */
 .slide__head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 10px;
 }
 

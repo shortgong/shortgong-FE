@@ -1,11 +1,12 @@
 .setcard {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 13px;
   width: 100%;
-  overflow: hidden;
+  padding: 12px;
   text-align: left;
   color: var(--c-ink);
-  border-radius: var(--r-xl);
+  border-radius: var(--r-lg);
   background: var(--c-surface);
   transition: opacity var(--dur) var(--ease);
 }
@@ -14,11 +15,13 @@
   opacity: 0.6;
 }
 
-/* ---------- 표지 (전체 폭 색 블록) ---------- */
+/* ---------- 표지 (9:16 세로 포스터) ---------- */
 .setcard__cover {
   display: block;
   flex: none;
-  height: 116px;
+  width: 72px;
+  aspect-ratio: 9 / 16;
+  border-radius: var(--r-md);
 }
 
 .setcard__cover--mint {
@@ -36,10 +39,11 @@
 
 /* ---------- 본문 ---------- */
 .setcard__body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 14px 16px 16px;
 }
 
 .setcard__tags {

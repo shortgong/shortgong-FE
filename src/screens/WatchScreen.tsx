@@ -2,44 +2,62 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { ShortEmbed } from '../components/ShortEmbed';
+import { useRandomServerShort, useVideoShort } from '../api/queries';
 import { findSet, fmtCount, shortsOfSet } from '../data/content';
 import { useDoubleTapLike } from '../hooks/useDoubleTapLike';
 import { useShortScroller } from '../hooks/useShortScroller';
 import { useStore } from '../store/context';
 import './WatchScreen.css';
 
-/* 세트에 속하지 않은 일반 피드 라벨 */
-const FREE_FEED_LABEL = '무순 세트';
+/* 방금 만든 세트의 미리보기 라벨 */
+const NEW_SET_LABEL = '새 세트';
 
 export function WatchScreen() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { state, toggleLike, setWatched, completeSet, toast } = useStore();
 
-  /* ---------- 모드: 일반 피드 vs 학습 세트 ---------- */
+  /* ---------- 모드: 방금 만든 세트 vs 학습 세트 — 둘 다 세트 단위다 ---------- */
+
+  /* 세트 없이 들어오면 보여줄 것이 없다 (옛 '일반 피드' 는gone) */
+  const hasEntry = !!params.get('set') || !!params.get('video');
+
+  /* ?video=<id> — 방금 만든 세트의 미리보기. 서버에서 인제스트된 HTML 을 그대로 띄운다.
+     캐시가 살아 있으면(refetchOnMount) 통신 없이 먼저 그린다. */
+  const videoId = params.get('video');
+  const { data: remote, isError: remoteFailed } = useVideoShort(videoId ? Number(videoId) : null);
+
   const studySet = findSet(params.get('set') ?? undefined);
   const setShorts = useMemo(() => (studySet ? shortsOfSet(studySet) : []), [studySet]);
-  const shorts = studySet ? setShorts : state.shorts;
 
-  /* ?at=<id> 딥링크: 해당 쇼츠 위치로 바로 이동 (일반 모드 전용) */
-  const deepLinkAt = params.get('at');
-  const deepIndex = !studySet && deepLinkAt ? shorts.findIndex((s) => s.id === deepLinkAt) : -1;
+  /* 백엔드에 실제로 존재하는 쇼츠 중 하나를 랜덤으로 고른다 — 목록 API 가 없어 정해진 id 중에서 고른다.
+     고른 html 을 iframe 에 넣는다 — 이것이 진짜 백엔드 물건인지 눈으로 확인하는 길. */
+  const { data: serverVideo } = useRandomServerShort();
+  /* content 가 self-contained HTML 문서고, draft 는 평문 트랜스크립트다 */
+  const serverHtml = serverVideo?.content;
 
-  /* 세트 모드에서는 마지막 감상 지점부터 이어 듣기 */
+  /* 쇼츠 하나만 따로 보는 길은 없다 — 세트(preview 또는 학습 세트)로만 들어온다 */
+  const shorts = videoId ? (remote ? [remote] : []) : setShorts;
+
+  /* 세트 안에서 어디부터 이어 볼지 — 마지막 감상 지점 */
   const resumeIndex = studySet ? Math.min(state.setProgress[studySet.id] ?? 0, Math.max(0, shorts.length - 1)) : 0;
 
   const { ref: stageRef, index, indexRef } = useShortScroller({
     count: shorts.length,
-    deepIndex,
     resumeIndex,
     onMute: () => toast('음소거 상태는 준비 중이에요'),
   });
 
   const dbl = useDoubleTapLike({
-    getId: () => shorts[indexRef.current].id,
-    liked: () => !!state.likes[shorts[indexRef.current].id],
+    getId: () => shorts[indexRef.current]?.id ?? '',
+    liked: () => !!state.likes[shorts[indexRef.current]?.id ?? ''],
     onLike: toggleLike,
   });
+
+  /* 세트 없이 들어온 진입은 탐색으로 돌려보낸다 — 세트 없는 감상은 존재하지 않는다 */
+  useEffect(() => {
+    if (!hasEntry) navigate('/explore', { replace: true });
+  }, [hasEntry, navigate]);
 
   /* 감상한 편을 세트 진행 상태에 반영 — 마지막 편까지 들으면 세트 완료 + 퀴즈 개방 */
   useEffect(() => {
@@ -49,14 +67,35 @@ export function WatchScreen() {
   }, [index, studySet, shorts.length, setWatched, completeSet]);
 
   const current = shorts[index];
+
+  /* 서버 영상이 아직 오지 않았으면 빈 화면 대신 이유를 말해 준다 */
+  if (!current) {
+    const failed = !!remoteFailed;
+    return (
+      <div className="watch">
+        <div className="watch__sr" role="status" aria-live="polite">
+          {failed ? '영상을 불러오지 못했어요' : '불러오는 중'}
+        </div>
+        {failed && (
+          <div className="watch__pos">
+            <button type="button" className="watch__setExit" onClick={() => navigate('/home')} aria-label="홈으로">
+              <Icon name="back" size={20} />
+            </button>
+            <p className="t-label-plain watch__posLabel">영상을 불러오지 못했어요</p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   const isLiked = !!state.likes[current.id];
 
   return (
     <div className="watch">
-      {/* 상단 위치 표시는 세트/무순 공통. 왼쪽=무엇을 보고 있는지, 오른쪽=몇 번째 중 몇 번째 */}
+      {/* 상단 위치 표시는 세트 공통. 왼쪽=무엇을 보고 있는지, 오른쪽=몇 번째 중 몇 번째 */}
       <header
         className="watch__pos"
-        aria-label={`${studySet ? studySet.title : FREE_FEED_LABEL} ${index + 1}번째, 전체 ${shorts.length}번째`}
+        aria-label={`${studySet ? studySet.title : NEW_SET_LABEL} ${index + 1}번째, 전체 ${shorts.length}번째`}
       >
         {studySet && (
           <button type="button" className="watch__setExit" onClick={() => navigate('/explore')} aria-label="탐색으로">
@@ -64,7 +103,7 @@ export function WatchScreen() {
           </button>
         )}
         <p className="t-label-plain watch__posLabel" aria-hidden="true">
-          {studySet ? studySet.title : FREE_FEED_LABEL}
+          {studySet ? studySet.title : NEW_SET_LABEL}
         </p>
         <p className="t-caption-plain watch__posCount" aria-hidden="true">
           {index + 1}/{shorts.length}
@@ -92,11 +131,10 @@ export function WatchScreen() {
 
               <header className="slide__top">
                 <div className="slide__head">
-                  <span className="chip">{s.tag}</span>
                   <button
                     type="button"
                     className="slide__close"
-                    aria-label="피드 닫기"
+                    aria-label="감시 종료"
                     onClick={() => navigate('/home')}
                   >
                     <Icon name="more" size={22} />
@@ -104,15 +142,16 @@ export function WatchScreen() {
                 </div>
               </header>
 
-              {/* 임베드가 없는 쇼츠는 기존 여백을 유지해 레이아웃이 무너지지 않게 한다 */}
-              {s.html ? (
-                <ShortEmbed id={s.id} html={s.html} tone={s.tone} title={s.title} active={active} />
+              {/* 백엔드에서 받은 html 이 있으면 그것을 우선한다 — '이게 진짜 백엔드 물건인가'
+                  를 눈으로 확인할 수 있다. 없으면 기존 여백 유지. */}
+              {(serverHtml ?? s.html) ? (
+                <ShortEmbed id={s.id} html={serverHtml ?? s.html} tone={s.tone} title={s.title} active={active} />
               ) : (
                 <div className="slide__spacer" />
               )}
 
               {/* 우측 레일 — 하단 메타와 겹치지 않도록 세로 중앙에 둔다 */}
-              <nav className="rail" aria-label="쇼츠 액션">
+              <nav className="rail" aria-label="액션">
                 <button
                   type="button"
                   className={`rail__act rail__act--like ${liked ? 'is-set' : ''}`}

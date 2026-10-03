@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 0 16px;
+  padding: 12px 0 18px;
 }
 
 .profile__avatar {
@@ -26,25 +26,17 @@
   border-radius: var(--r-pill);
   background: var(--c-brand-soft);
   color: var(--c-brand-ink);
-}
-
-.profile__text {
-  flex: 1;
-  min-width: 0;
+  /* 백엔드 프로필 이미지를 그대로 보여줄 때 글자 대신 쓴다 */
+  font: var(--t-label);
+  object-fit: cover;
 }
 
 .profile__name {
+  flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.profile__edit {
-  flex: none;
-  padding: 8px 13px;
-  border-radius: var(--r-pill);
-  background: var(--c-surface);
-  color: var(--c-ink-2);
 }
 
 .stats {

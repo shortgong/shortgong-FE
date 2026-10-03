@@ -7,6 +7,7 @@ import { MeStats } from '../components/MeStats';
 import { TabBar } from '../components/TabBar';
 import { TopBar } from '../components/TopBar';
 import { STUDY_SETS } from '../data/content';
+import { useAuth } from '../store/authContext';
 import { useStore } from '../store/context';
 import './MeScreen.css';
 
@@ -28,17 +29,26 @@ const rows: MeRow[] = [
 export function MeScreen() {
   const navigate = useNavigate();
   const { likedList, toast } = useStore();
+  const { user, status, signOut } = useAuth();
+
+  const onLogout = () => {
+    /* 로그인 상태일 때만 쿠키를 지운다 — 서버에 세션이 없는데 지우러 갈 이유가 없다 */
+    if (status === 'authed') {
+      signOut();
+      toast('로그아웃했어요');
+    }
+    navigate('/onboarding', { replace: true });
+  };
+
+  /* 닉네임·프사는 백엔드가 준 값만 쓴다 — 로그인 전에는 없는 값을 만들어내지 않는다 */
+  const name = user?.username ?? (status === 'booting' ? '불러오는 중' : '로그인이 필요해요');
 
   return (
     <div className="screen me">
       <TopBar title="마이" back={false} />
 
       <div className="me__scroll">
-        <MeProfile
-          name="공공이"
-          tagline="오늘도 3분, 이어가 볼까요"
-          onEdit={() => toast('프로필 편집은 준비 중이에요')}
-        />
+        <MeProfile name={name} imageUrl={user?.profileImageUrl ?? null} />
 
         <MeStats stats={STATS} />
 
@@ -58,8 +68,8 @@ export function MeScreen() {
           }}
         />
 
-        <button type="button" className="me__logout t-label" onClick={() => navigate('/onboarding')}>
-          로그아웃
+        <button type="button" className="me__logout t-label" onClick={onLogout}>
+          {status === 'authed' ? '로그아웃' : '로그인하러 가기'}
         </button>
       </div>
       <TabBar />
