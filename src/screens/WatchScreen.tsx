@@ -30,8 +30,9 @@ export function WatchScreen() {
   /* 백엔드에 실제로 존재하는 쇼츠 중 하나를 랜덤으로 고른다 (목록 API 가 없어 1~15 를 훑는다).
      고른 html 을 모든 쇼츠의 iframe 에 넣는다 — 하나가 제대로 떴는지 보려면
      모든 칸이 같은 내용으로 차 있어야 하기 때문. */
-  const { data: serverFeed } = useRandomServerShort();
-  const serverHtml = serverFeed?.picked?.draft;
+  const { data: serverVideo } = useRandomServerShort();
+  /* content 가 self-contained HTML 문서고, draft 는 평문 트랜스크립트다 */
+  const serverHtml = serverVideo?.content;
 
   const shorts = videoId ? (remote ? [remote] : []) : studySet ? setShorts : state.shorts;
 

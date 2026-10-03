@@ -43,13 +43,11 @@ ShortGong FE — React + Vite + TypeScript. Mobile-first PWA.
 - Cache is in memory, so a hard reload always refetches. Only SPA navigation can be a cache hit; do not write tests that expect otherwise.
 
 ## Feed (목록 API 가 없을 때)
-- There is no list endpoint. `useRandomServerShort()` probes ids 1~15 in parallel and keeps the ones that answer `COMPLETED` with a non-empty `draft`.
-- One 404 must not fail the batch — `discoverVideos` uses `Promise.allSettled` and filters, so a missing id costs one request and nothing else.
-- `PROCESSING` videos are filtered out. A half-ingested `draft` must never reach an iframe.
-- The pick is random but **stable**: it happens inside `queryFn`, so it is cached with the key. Re-renders do not reshuffle. `useRescanFeed()` (clears the remembered ids + invalidates) is the only way to reroll or to notice server-side additions.
-- Discovered ids are remembered in `localStorage['shortgong.feed.ids']` so a reload does not re-probe ids that are known to 404 (11 wasted requests and 11 console 404s per load otherwise). An **empty** remembered list means "found nothing", not "never looked", so it falls back to a full scan.
-- A video created in-app is added to the remembered list in `useCreateVideo.onSuccess` — no need to wait for the next scan.
-- Every `ShortEmbed` in `WatchScreen` renders `serverHtml ?? s.html`, so one real ingested video fills every slide. That is deliberate: if one card renders it and the others do not, you cannot tell whether the backend document is broken or the app is.
+- There is no list endpoint. `videos.KNOWN_VIDEO_IDS` holds the ids that are known to exist — currently `1, 2, 9, 14`. `useRandomServerShort()` picks one at random and fetches **that one**. Do not rescan a range: probing ids that do not exist just produces 404s.
+- `content` is the self-contained HTML document and is what goes into `ShortEmbed`'s `srcDoc`. **`draft` is the plain-text transcript** — putting it in an iframe renders a wall of text, which is the bug this rule exists to prevent.
+- The pick is random but **stable**: it happens inside `queryFn`, so re-renders do not reshuffle. `invalidateQueries({ queryKey: qk.feed })` rerolls.
+- Every `ShortEmbed` in `WatchScreen` renders `serverVideo?.content ?? s.html`, so one real video fills every slide. Deliberate: if one card renders it and the others do not, you cannot tell whether the backend document is broken or the app is.
+- The query is `enabled: !!getAccessToken()` — `GET /api/video/{id}` answers 401 (see HANDOFF), so an anonymous visitor never scans and falls back to the local sample shorts.
 
 ## Video API
 - `POST /api/video` body is `{ content: string }` (≤10000 chars) → `{ id, status }`. Ingest is async: `PROCESSING` means the HTML is not ready yet.

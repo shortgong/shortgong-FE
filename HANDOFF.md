@@ -27,12 +27,14 @@
 - 폴링은 `refetchInterval` 이 담당한다 — 상태가 확정되거나 상한에 닿으면 `false` 를 돌려주고,
   언마운트 시 요청도 함께 끊긴다. 진행률은 폴링 횟수에서 파생한다(상태로 들고가지 않는다).
 - 캐시는 메모리다 — 전체 리로드엔 항상 다시 조회한다. SPA 내 이동만 히트난다.
-- 피드: 목록 API 가 없어 `1~15` 를 병렬로 훑고 `COMPLETED + draft 있음` 만 남긴다(실측존재: 1, 2, 9, 14).
-  랜덤 선택은 `queryFn` 안에서 일어나므로 리렌더마다 바뀌지 않는다. 찾은 id 는
-  `localStorage.shortgong.feed.ids` 에 기억해 다음 로드에서 404 storms(요청 11개 + 콘솔 404 11개)를 없앤다.
-  단 '빈 배열'은 '못 찾음'이므로 다시 훑는다 — 서버에 나중에 생긴 영상을 놓치지 않기 위해.
-- `WatchScreen` 의 모든 iframe 은 `serverHtml ?? s.html` 을 그린다 — 하나만 실물로 뛰면
+- 피드: 목록 API 가 없어 `KNOWN_VIDEO_IDS = [1, 2, 9, 14]` 중 하나를 랜덤으로 골라 **한 번만** 조회한다.
+  1~15 훑기는 과했다 — 없는 id 마다 404 storms(요청 11개 + 콘솔 404 11개)가 났다.
+  랜덤 선택은 `queryFn` 안에서 일어나므로 리렌더마다 바뀌지 않는다.
+- **`content` = self-contained HTML 문서, `draft` = 평문 트랜스크립트.** iframe 에는 `content` 가 들어간다.
+  `draft` 를 넣으면 텍스트 벽이 나온다 — 실제로 그랬다.
+- `WatchScreen` 의 모든 iframe 은 `serverVideo?.content ?? s.html` 을 그린다 — 하나만 실물로 뛰면
   백엔드 문서가 깨진 건지 앱이 깨진 건지 구분할 수 없기 때문.
+- 조회는 인증 필요(401). `enabled: !!getAccessToken()` — 익명이면 훑지 않고 로컬 샘플로 떨어진다.
 
 ## Pending/Next
 - **백엔드 CORS 는 백엔드에서 처리하기로 했다.** FE 는 프록시를 쓰지 않고
