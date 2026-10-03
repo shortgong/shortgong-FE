@@ -1,13 +1,24 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ApiError, fetchMe, getAccessToken, logout as logoutReq, setAccessToken } from './client';
-import { createVideo, fetchVideo, toShort } from './videos';
+import {
+  createVideo,
+  discoverVideos,
+  fetchVideo,
+  forgetScannedIds,
+  pickRandom,
+  readScannedIds,
+  toShort,
+  writeScannedIds,
+} from './videos';
 import { qk, queryClient } from './queryClient';
 
 const FIVE_MIN = 5 * 60_000;
 const POLL_MS = 1500;
 /** 인제스트가 오래 걸려도 무한 폴링은 하지 않는다 — 여기서 끊고 화면이 실패를 보여준다 */
 const POLL_MAX = 80;
+/** 목록 API 가 없을 때 훑을 아이디 범위 */
+const DEFAULT_SCAN_IDS = Array.from({ length: 15 }, (_, i) => i + 1);
 
 /**
  * 내 정보.
@@ -87,8 +98,48 @@ export function useCreateVideo() {
     onSuccess: (created) => {
       /* 곧바로 완성본이 오는 경우도 있으므로 캐시를 미리 심는다 */
       client.setQueryData(qk.video(created.id), created);
+      /* 내가 만든 영상이면 목록 탐색 대상에 바로 넣는다 — 다음 훑기까지 기다리지 않는다 */
+      const known = readScannedIds();
+      if (known) writeScannedIds([...known, created.id]);
     },
   });
+}
+
+/**
+ * 백엔드에 실제로 존재하는 쇼츠를 찾아 하나를 랜덤으로 고른다.
+ *
+ * 목록 API 가 없으므로 1~15 를 병렬로 훑고, 존재하면서 인제스트가 끝난 것만 남긴다.
+ * 랜덤 고르는 일도 여기서 끝낸다 — queryFn 이 캐시 키의 안쪽에서 한 번만 돌기 때문에
+ * 리렌더마다 다른 쇼츠가 나오지 않는다. 다시 뽑으려면 invalidateQueries({queryKey: qk.feed}).
+ */
+export function useRandomServerShort(ids?: number[]) {
+  return useQuery({
+    queryKey: qk.feed,
+    queryFn: async () => {
+      /* 기억에 있는 id 가 있으면 그것만 묻는다. 단 '없다'는 걸로 기억하면(빈 배열)
+         영상을 하나도 못 찾은 상태와 아직 훑지 않은 상태를 구분할 수 없다 —
+         그래서 빈 배열이면 다시 훑는다. */
+      const known = ids ?? readScannedIds();
+      const target = known && known.length > 0 ? known : DEFAULT_SCAN_IDS;
+      const videos = await discoverVideos(target);
+      /* 실제로 응답한 것만 남긴다 — 없어진 id 는 여기서 떨어진다 */
+      writeScannedIds(videos.map((v) => v.id));
+      return { videos, picked: pickRandom(videos) };
+    },
+    enabled: !!getAccessToken(),
+    /* 목록은 한 번 훑으면 오래 된다 — invalidate 로만 갱신한다 */
+    staleTime: FIVE_MIN,
+    retry: 0,
+  });
+}
+
+/** 서버에 새로 생긴 영상이 반영될 때 — 기억을 지우고 다시 훑는다 */
+export function useRescanFeed() {
+  const client = useQueryClient();
+  return useCallback(() => {
+    forgetScannedIds();
+    client.invalidateQueries({ queryKey: qk.feed });
+  }, [client]);
 }
 
 /**
@@ -107,6 +158,7 @@ export function useLogout() {
     },
   });
 }
+
 
 /** ApiError 를 화면 문장으로 바꾼다 — 401 은 "세션이 죽었다"로 구분한다 */
 export function describeError(e: unknown, anonMessage = '로그인이 필요해요. 먼저 로그인해 주세요.') {

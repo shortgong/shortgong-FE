@@ -32,4 +32,6 @@ export const queryClient = new QueryClient({
 export const qk = {
   me: ['auth', 'me'] as const,
   video: (id: number) => ['video', id] as const,
+  /** 백엔드에서 실제로 존재하는 쇼츠 목록 (목록 API 가 없어 id 를 훑는다) */
+  feed: ['video', 'feed'] as const,
 };

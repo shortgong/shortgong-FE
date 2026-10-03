@@ -35,6 +35,57 @@ export function fetchVideo(id: number) {
   return apiFetch<Video>(`/api/video/${id}`);
 }
 
+/**
+ * 목록 엔드포인트가 없으므로 아이디를 훑어 본다.
+ *
+ * 없는 아이디는 404 로 돌아오는데, 하나가 404 난다고 전체를 실패시키면 안 된다 —
+ * 15개를 병렬로 던지고 '존재하면서 인제스트가 끝난 것'만 남긴다.
+ */
+export async function discoverVideos(ids: number[]): Promise<Video[]> {
+  const settled = await Promise.allSettled(ids.map((id) => fetchVideo(id)));
+  return settled
+    .flatMap((r) => (r.status === 'fulfilled' ? [r.value] : []))
+    .filter((v) => v.status === 'COMPLETED' && !!v.draft);
+}
+
+/** 있는 것 중 아무거나 — 목록 자체를 먼저 캐시에 두고, 고르는 일은 캐시가 대신 하게 한다 */
+export function pickRandom<T>(items: T[]): T | null {
+  if (items.length === 0) return null;
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+/**
+ * 발견한 id 목록을 기억한다.
+ *
+ * 목록 API 가 없으므로 처음엔 1~15 를 훑어야 하지만, 확실히 없는 id 로 404 를 반복해서
+ * 맞으면 매 로드마다 요청 11개가 날아가고 콘솔이 404 로 더러워진다. 그래서 실제로
+ * 존재한 것만 남겨두고 다음부터는 그 id 만 물어본다. (실측: 1, 2, 9, 14)
+ */
+const SCAN_CACHE_KEY = 'shortgong.feed.ids';
+
+export function readScannedIds(): number[] | null {
+  try {
+    const raw = localStorage.getItem(SCAN_CACHE_KEY);
+    if (!raw) return null;
+    const ids: unknown = JSON.parse(raw);
+    return Array.isArray(ids) ? ids.filter((n): n is number => typeof n === 'number') : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeScannedIds(ids: number[]) {
+  try {
+    localStorage.setItem(SCAN_CACHE_KEY, JSON.stringify([...new Set(ids)].sort((a, b) => a - b)));
+  } catch {
+    /* 저장 실패(사생활모) 시에도 화면은 계속 돌아야 한다 */
+  }
+}
+
+export function forgetScannedIds() {
+  localStorage.removeItem(SCAN_CACHE_KEY);
+}
+
 /** 상태가 PROCESSING 인 동안 호출한다 */
 export const isPending = (v: Pick<Video, 'status'>) => v.status === 'PROCESSING';
 

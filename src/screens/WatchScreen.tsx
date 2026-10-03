@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Icon } from '../components/Icon';
 import { ShortEmbed } from '../components/ShortEmbed';
-import { useVideoShort } from '../api/queries';
+import { useRandomServerShort, useVideoShort } from '../api/queries';
 import { findSet, fmtCount, shortsOfSet } from '../data/content';
 import { useDoubleTapLike } from '../hooks/useDoubleTapLike';
 import { useShortScroller } from '../hooks/useShortScroller';
@@ -26,6 +26,13 @@ export function WatchScreen() {
 
   const studySet = findSet(params.get('set') ?? undefined);
   const setShorts = useMemo(() => (studySet ? shortsOfSet(studySet) : []), [studySet]);
+
+  /* 백엔드에 실제로 존재하는 쇼츠 중 하나를 랜덤으로 고른다 (목록 API 가 없어 1~15 를 훑는다).
+     고른 html 을 모든 쇼츠의 iframe 에 넣는다 — 하나가 제대로 떴는지 보려면
+     모든 칸이 같은 내용으로 차 있어야 하기 때문. */
+  const { data: serverFeed } = useRandomServerShort();
+  const serverHtml = serverFeed?.picked?.draft;
+
   const shorts = videoId ? (remote ? [remote] : []) : studySet ? setShorts : state.shorts;
 
   /* ?at=<id> 딥링크: 해당 쇼츠 위치로 바로 이동 (일반 모드 전용) */
@@ -132,9 +139,10 @@ export function WatchScreen() {
                 </div>
               </header>
 
-              {/* 임베드가 없는 쇼츠는 기존 여백을 유지해 레이아웃이 무너지지 않게 한다 */}
-              {s.html ? (
-                <ShortEmbed id={s.id} html={s.html} tone={s.tone} title={s.title} active={active} />
+              {/* 백엔드에서 받은 html 이 있으면 그것을 우선한다 — 모든 쇼츠가 같은 실물로 차야
+                  '이게 진짜 백엔드 물건인가' 를눈으로 확인할 수 있다. 없으면 기존 여백 유지. */}
+              {(serverHtml ?? s.html) ? (
+                <ShortEmbed id={s.id} html={serverHtml ?? s.html} tone={s.tone} title={s.title} active={active} />
               ) : (
                 <div className="slide__spacer" />
               )}
