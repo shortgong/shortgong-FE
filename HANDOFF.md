@@ -4,7 +4,7 @@
 - Branch: `fix/embed-swipe-tts` (develop `dc0377f` 기준)
 - Typecheck/lint/build: PASS. 회귀 11종 + `ttscheck` 31/31 + `embedcheck` 39/39 통과.
 - 임베드: 피트 문서는 320×640 / 360×780 / 390×844 / 430×932 전부 안 잘림.
-- 인증: Google OAuth → 백엔드 콜백 → FE `/oauth/callback?key=` → exchange → accessToken(메모리).
+- 인증: Google OAuth → 백엔드 콜백 → FE `/oauth/callback?key=` → exchange → accessToken(localStorage).
 - 쇼츠 생성: `POST /api/video` → `PROCESSING` 면 `GET /api/video/{id}` 폴링 → `COMPLETED` 면 `draft`(임베드 HTML)로 렌더. 예전 타이머 흉내는 걷어냈다.
 - `MeScreen` 로그아웃이 `DELETE /api/auth/logout` 을 실제로 호출한다(쿠키가 안 지워지면 다음 방문에 되살아난다).
 
@@ -17,10 +17,16 @@
   pointer-events 가 아니다. 넘치는(스크롤) iframe 은 당연히 스와이프를 막는다.
 - TALL 문서는 저uya 알아서 줄어들게 반응형(16항목 + `clamp()`/`vh`) 으로 작성.
 - TTS 문서에는 `#b` 다시 듣기 버튼이 있다 — 사내에서 대화형 문서가 동작함을 확인하는 지점.
-- 인증: accessToken 은 메모리만. 새로고침은 `POST /api/auth/token/refresh`(refreshToken 쿠키)로 되살린다.
-  refreshToken 은 HttpOnly 라 FE 가 저장하지 않는다 — 백엔드 `Set-Cookie` 가 유일한 원천.
-- 로그인 여부 표지(`localStorage.shortgong.session`)가 없으면 백엔드에 묻지 않는다 —
-  익명 방문자가 매 로드마다 403 을 받고 콘솔이 더러워진다.
+- 인증: accessToken 은 `localStorage['shortgong.accessToken']`. 새로고침해도 로그인이 유지된다
+  (대가는 "페이지를 읽을 수 있는 스크립트는 토큰도 읽는다" — 감수한 선택).
+  refreshToken 은 여전히 HttpOnly 라 FE 가 저장하지 않는다 — 백엔드 `Set-Cookie` 가 유일한 원천.
+- 토큰이 없으면 `useMe` 이 disabled 라 백엔드에 아예 묻지 않는다 — 익명 방문자는 API 호출 0회.
+  죽은 토큰은 `apiFetch` 가 401 → `token/refresh` → 1회 재시도로 되살린다(동시 요청은 single-flight).
+- 서버 상태는 react-query 로 모았다(`src/api/queries.ts`). 기본 staleTime 1m / gcTime 5m / retry 1,
+  mutation 은 retry 0(생성은 되돌릴 수 없다). 회원은 5분, 쇼츠는 PROCESSING 동안 staleTime 0.
+- 폴링은 `refetchInterval` 이 담당한다 — 상태가 확정되거나 상한에 닿으면 `false` 를 돌려주고,
+  언마운트 시 요청도 함께 끊긴다. 진행률은 폴링 횟수에서 파생한다(상태로 들고가지 않는다).
+- 캐시는 메모리다 — 전체 리로드엔 항상 다시 조회한다. SPA 내 이동만 히트난다.
 
 ## Pending/Next
 - **백엔드 CORS 가 아직 없다.** `Access-Control-Allow-*` 헤더가 하나도 없어 cross-origin 호출이 전부 막힌다.
@@ -34,6 +40,6 @@
 ```bash
 cd /home/user/Desktop/workspace/shortgong/shortgong-FE
 npm run dev            # localhost:5199 (127.0.0.1 로 열면 쿠키가 안 넘어간다)
-cd /tmp/opencode && node oauthe2e.mjs && node createcheck.mjs && node logoutcheck.mjs && node allroutes.mjs
+cd /tmp/opencode && node oauthe2e.mjs node oauthe2e.mjs && node createcheck.mjs && node logoutcheck.mjs && node allroutes.mjsnode oauthe2e.mjs && node createcheck.mjs && node logoutcheck.mjs && node allroutes.mjs node meauthcheck.mjs node oauthe2e.mjs && node createcheck.mjs && node logoutcheck.mjs && node allroutes.mjsnode oauthe2e.mjs && node createcheck.mjs && node logoutcheck.mjs && node allroutes.mjs node createcheck.mjs node oauthe2e.mjs && node createcheck.mjs && node logoutcheck.mjs && node allroutes.mjsnode oauthe2e.mjs && node createcheck.mjs && node logoutcheck.mjs && node allroutes.mjs node logoutcheck.mjs && node allroutes.mjs
 # embedcheck/ttscheck 는 stdout 이 아니라 embedcheck.out 파일에 쓴다
 ```

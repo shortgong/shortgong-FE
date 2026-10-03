@@ -27,10 +27,20 @@ ShortGong FE — React + Vite + TypeScript. Mobile-first PWA.
 ## Auth (Google OAuth)
 - Login is a **full-page redirect**, never a popup/XHR (Google blocks framed login): `location.assign(OAUTH_GOOGLE_URL)` → backend `/oauth2/authorization/google`. Backend owns the Google callback and the PKCE/state.
 - Backend then redirects to FE **`/oauth/callback?key=<one-time exchange token>`**. `OAuthCallbackScreen` exchanges it once, strips the key from the URL, then goes to `/home`.
-- `accessToken` lives in memory only (`src/api/client.ts`). Never localStorage.
+- `accessToken` lives in `localStorage['shortgong.accessToken']` (`src/api/client.ts`) so a reload does not force a re-login. The cost is accepted deliberately: any script that can read the page can read the token.
 - `refreshToken` is HttpOnly — the backend sets it. FE only sends it via `credentials: 'include'`. FE must never try to write it.
-- A reload re-issues via `POST /api/auth/token/refresh` (cookie). Gated on the `localStorage.shortgong.session` hint so anonymous visitors make **zero** API calls.
+- No session hint anymore: the token itself is the flag. No token → `useMe` is `disabled` → anonymous visitors make **zero** API calls.
+- A dead token is handled in `apiFetch`: 401 → `POST /api/auth/token/refresh` (single-flight, so a rotating refresh token is never raced) → retry once → otherwise drop the token and surface `ApiError(401)`.
 - `AUTH_ORIGIN` (absolute) is separate from `API_BASE` — OAuth navigation must never become a relative path, or it lands back in the SPA and gets swallowed by the catch-all route.
+
+## Server state (react-query)
+- One `QueryClient` (`src/api/queryClient.ts`) mounted in `main.tsx`. Every server read goes through `src/api/queries.ts` — no hand-rolled `useEffect` fetching.
+- Defaults: `staleTime` 1m, `gcTime` 5m, `retry` 1 for queries, **`retry` 0 for mutations**, `refetchOnWindowFocus` off. Mutations are not idempotent — a retried create makes a second shorts.
+- Per-query overrides: member `staleTime` 5m; a video is `staleTime` 0 while `PROCESSING` and 5m once `COMPLETED`.
+- Polling belongs to `refetchInterval`, never to a timer in an effect: `useVideo` returns `false` from it once the status settles or the poll cap is hit, which stops the requests and frees cancellation on unmount.
+- `pct` is **derived**, not stored: it is computed from the poll count, so there is no state to fall out of sync with the query.
+- Logout calls `queryClient.clear()` — otherwise the previous member/video stays cached and flashes for the next person who logs in.
+- Cache is in memory, so a hard reload always refetches. Only SPA navigation can be a cache hit; do not write tests that expect otherwise.
 
 ## Video API
 - `POST /api/video` body is `{ content: string }` (≤10000 chars) → `{ id, status }`. Ingest is async: `PROCESSING` means the HTML is not ready yet.

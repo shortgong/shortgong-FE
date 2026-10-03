@@ -3,12 +3,13 @@ import { API_BASE, ENDPOINTS } from './config';
 /**
  * 백엔드 호출 계층.
  *
- * 토큰 배치 — accessToken 은 메모리에만 둔다:
- *   · localStorage 에 두면 XSS 에 그대로 노출되고, 읽은 뒤 어디로 보낼지 통제할 수 없다
- *   · 대신 새로고침되면 accessToken 이 사라지므로, 부팅할 때 refreshToken 쿠키로 재발급한다
- *     (POST /api/auth/token/refresh). 쿠키는 HttpOnly 라 JS 가 건드릴 수 없다.
- *   · refreshToken 을 자기가 저장하는 일은 없다 — 백엔드가 Set-Cookie 로 내려준다.
- *     FE 는 credentials: 'include' 로 실어 보내기만 한다.
+ * 토큰 배치 — accessToken 은 localStorage 에 둔다:
+ *   · 새로고침·탭 전환에도 로그인이 유지돼서, 부팅 때마다 재로그인시키지 않는다
+ *   · 대신 페이지를 읽을 수 있는 스크립트(XSS)에게 토큰이 노출된다 — 읽은 뒤 어디로
+ *     보낼지 통제할 수 없다는 점이 localStorage 의 대가다
+ *   · 그래도 refreshToken 은 자기가 저장하지 않는다 — 백엔드가 HttpOnly cookie 로
+ *     내려주고, FE 는 credentials: 'include' 로 실어 보내기만 한다
+ *   · accessToken 이 죽었으면 401 → refresh 한 번 후 재시도한다
  */
 export type Member = {
   id: number;
@@ -32,29 +33,13 @@ export class ApiError extends Error {
   }
 }
 
-let accessToken: string | null = null;
+const ACCESS_KEY = 'shortgong.accessToken';
 
-/**
- * '한 번이라도 로그인했는가' 표시.
- *
- * refreshToken 은 HttpOnly 라 JS 가 볼 수 없다. 그래서 이 표지만 보고 부팅 시
- * 재발급을 시도한다 — 표지가 없으면 백엔드에 아예 묻지 않는다. 안 그러면 손님이
- * 매 페이지 로드마다 403 을 받고 그게 콘솔에 그대로 남는다.
- * 로그인 성공·로그아웃·실패 때 함께 지운다.
- */
-const SESSION_KEY = 'shortgong.session';
-
-export const getAccessToken = () => accessToken;
+export const getAccessToken = () => localStorage.getItem(ACCESS_KEY);
 
 export function setAccessToken(token: string | null) {
-  accessToken = token;
-}
-
-export const hasSessionHint = () => localStorage.getItem(SESSION_KEY) === '1';
-
-function markSession(on: boolean) {
-  if (on) localStorage.setItem(SESSION_KEY, '1');
-  else localStorage.removeItem(SESSION_KEY);
+  if (token) localStorage.setItem(ACCESS_KEY, token);
+  else localStorage.removeItem(ACCESS_KEY);
 }
 
 async function request(path: string, init: RequestInit): Promise<Response> {
@@ -87,11 +72,10 @@ let refreshing: Promise<string | null> | null = null;
 /**
  * accessToken 재발급.
  *
- * 표지를 먼저 걸어둔다 — 성공하면 세션이 살아 있다는 뜻이니 다음 부팅 때 다시 물어봐야 하고,
- * 실패하면 표지를 지워 '한 번도 안 로그인한 사람' 처럼 되돌린다 (그렇지 않으면 매 로드마다 재시도한다).
+ * 실패하면 토큰을 지운다 — 죽은 토큰을 계속 들고 있으면 이후 모든 요청이 401 이고,
+ * "로그인 안 된 사람" 과 "세션이 죽은 사람" 을 구분할 수 없게 된다.
  */
 function refresh(): Promise<string | null> {
-  markSession(true);
   refreshing ??= request(ENDPOINTS.refresh, { method: 'POST' })
     .then((res) => unwrap<{ accessToken: string }>(res))
     .then((data) => {
@@ -99,7 +83,6 @@ function refresh(): Promise<string | null> {
       return data.accessToken;
     })
     .catch(() => {
-      markSession(false);
       setAccessToken(null);
       return null;
     })
@@ -121,14 +104,16 @@ export async function apiFetch<T>(
 ): Promise<T> {
   const { auth = true, ...rest } = init;
 
-  const send = () =>
-    request(path, {
+  const send = () => {
+    const token = getAccessToken();
+    return request(path, {
       ...rest,
       headers: {
         ...(rest.headers as Record<string, string> | undefined),
-        ...(auth && accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...(auth && token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
+  };
 
   const res = await send();
   if (res.status !== 401 || !auth) return unwrap<T>(res);
@@ -145,23 +130,8 @@ export function exchangeKey(key: string) {
     .then((res) => unwrap<{ accessToken: string }>(res))
     .then((data) => {
       setAccessToken(data.accessToken);
-      markSession(true);
       return data.accessToken;
     });
-}
-
-/** 표지가 있을 때만 쿠키로 세션을 되살린다 — 새로고침 후 로그인이 유지되는 경로 */
-export async function restoreSession(): Promise<Member | null> {
-  if (!hasSessionHint()) return null;
-  if (!(await refresh())) return null;
-  try {
-    return await fetchMe();
-  } catch {
-    /* accessToken 이 살아도 세션은 죽었을 수 있다 — 표지를 지워 다음 부팅을 아껴 둔다 */
-    markSession(false);
-    setAccessToken(null);
-    return null;
-  }
 }
 
 export function fetchMe() {
@@ -172,7 +142,6 @@ export async function logout() {
   try {
     await request(ENDPOINTS.logout, { method: 'DELETE' });
   } finally {
-    markSession(false);
     setAccessToken(null);
   }
 }

@@ -1,135 +1,84 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError } from '../api/client';
-import { createVideo, fetchVideo } from '../api/videos';
+import { describeError, useCreateVideo, useVideo } from '../api/queries';
 import type { Video } from '../api/videos';
 
 export type MakeStage = 'idle' | 'making' | 'done' | 'failed';
 
-const POLL_MS = 1500;
+/** 폴링 상한과 간격은 useVideo 가 소유한다 (src/api/queries.ts) */
 const POLL_MAX = 80;
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-
-/**
- * 쇼츠 생성 진행.
- *
- * 예전엔 타이머로 100% 까지 올리는 흉내였지만, 백엔드가 이미 상태를 알려주므로
- * 진짜 통신으로 바꾼다: POST /api/video → PROCESSING 이면 GET 을 끝까지 따라간다.
- *
- * pct 는 백엔드가 주지 않는다(done/failed 는 반드시 응답 기준). 화면용 수치가 필요하니
- * 조회 한 번마다 조금씩 올리는 건 연출이고, 성공·실패 판정은 절대 통신 결과만 따른다.
- */
 export function useMakingProgress(opts: { onDone: (video: Video) => void; onError: (msg: string) => void }) {
   const { onDone, onError } = opts;
-  const [stage, setStage] = useState<MakeStage>('idle');
-  const [pct, setPct] = useState(0);
-  const [video, setVideo] = useState<Video | null>(null);
-  const pctRef = useRef(0);
-  /* false 가 되면 진행 중인 대기와 응답이 모두 무시된다 — 취소·내려감의 유일한 통로 */
-  const liveRef = useRef(true);
+  const create = useCreateVideo();
+  const [videoId, setVideoId] = useState<number | null>(null);
+
+  /* 폴링·취소는 react-query 가 한다 — 언마운트하거나 videoId 를 null 로 돌리면 요청이 멈춘다 */
+  const detail = useVideo(videoId);
+  /* 완료·실패 알림은 한 번만. 상태 변경이 아니라 '결과가 났다'는 사실을 밖으로 알리는 일 */
+  const notified = useRef(false);
+
+  const done = detail.data?.status === 'COMPLETED';
+  const timeout = videoId != null && !done && !create.isError && detail.pollCount >= POLL_MAX;
+  const failed = create.isError || timeout || detail.data?.status === 'FAILED';
+
+  /* pct 는 백엔드가 주지 않는다 — 조회가 늘 때마다 조금씩 오르는 건 연출일 뿐이라
+     상태로 들고 가지 않고 그 자리에서 계산한다. 100 은 COMPLETED 일 때만. */
+  const pct = done ? 100 : Math.min(99, (detail.pollCount + 1) * 7);
+
+  const stage: MakeStage = failed
+    ? 'failed'
+    : done
+      ? 'done'
+      : create.isPending || videoId != null
+        ? 'making'
+        : 'idle';
+
+  /* 실패 이유가 셋이다 — POST 자체가 실패 / 인제스트가 FAILED / 폴링 한도 초과.
+     서버가 FAILED 를 준 경우에는 '네트워크 문제' 라고 말하면 엉뚱한 안내가 된다. */
+  const reason: string =
+    detail.data?.status === 'FAILED'
+      ? '만들지 못했어요. 잠시 후 다시 시도해 주세요.'
+      : timeout
+        ? '시간이 오래 걸려요. 잠시 후 다시 시도해 주세요.'
+        : create.isError && create.error instanceof ApiError && create.error.status === 401
+          ? '로그인이 만료됐어요. 다시 로그인해 주세요.'
+          : describeError(create.error);
 
   useEffect(() => {
-    liveRef.current = true;
-    return () => {
-      liveRef.current = false;
-    };
-  }, []);
-
-  const bump = useCallback((value: number) => {
-    /* 99% 에서 멈춘다 — 100 은 응답이 확정한 뒤에만 찍는다 */
-    const next = Math.min(99, Math.max(pctRef.current + 7, value));
-    pctRef.current = next;
-    setPct(next);
-  }, []);
-
-  const fail = useCallback(
-    (message: string) => {
-      if (!liveRef.current) return;
-      setStage('failed');
-      onError(message);
-    },
-    [onError],
-  );
-
-  const settle = useCallback(
-    (result: Video) => {
-      if (!liveRef.current) return;
-      pctRef.current = 100;
-      setPct(100);
-      setVideo(result);
-      setStage('done');
-      onDone(result);
-    },
-    [onDone],
-  );
-
-  /**
-   * PROCESSING 인 동안 끝까지 따라간다.
-   * 재귀 대신 반복문 — 취소는 liveRef 하나로 처리한다.
-   */
-  const watch = useCallback(
-    async (id: number) => {
-      for (let tries = 0; tries < POLL_MAX; tries++) {
-        await sleep(POLL_MS);
-        if (!liveRef.current) return;
-        try {
-          const result = await fetchVideo(id);
-          if (!liveRef.current) return;
-          if (result.status === 'FAILED') return fail('만들지 못했어요. 잠시 후 다시 시도해 주세요.');
-          if (result.status === 'COMPLETED') return settle(result);
-          bump(0);
-        } catch (e) {
-          /* 세션이 끊겼다면 재시도해도 소용없다 */
-          if (e instanceof ApiError && e.status === 401) {
-            return fail('로그인이 만료됐어요. 다시 로그인해 주세요.');
-          }
-          /* 그 밖 오류(일시적인 네트워크 등)는 다음 회차에 다시 물어본다 */
-        }
-      }
-      fail('시간이 오래 걸려요. 잠시 후 다시 시도해 주세요.');
-    },
-    [bump, fail, settle],
-  );
+    if (notified.current) return;
+    if (done && detail.data) {
+      notified.current = true;
+      onDone(detail.data);
+    } else if (failed) {
+      notified.current = true;
+      onError(reason);
+    }
+  }, [done, failed, reason, detail.data, onDone, onError]);
 
   const start = useCallback(
     (content: string) => {
-      if (stage !== 'idle') return;
+      if (create.isPending || videoId != null) return;
       const text = content.trim();
       if (!text) return;
 
-      liveRef.current = true;
-      setStage('making');
-      pctRef.current = 0;
-      setPct(0);
-      setVideo(null);
-
-      createVideo(text)
-        .then((created) => {
-          if (!liveRef.current) return;
-          if (created.status === 'FAILED') return fail('만들지 못했어요. 잠시 후 다시 시도해 주세요.');
-          if (created.status === 'COMPLETED') {
-            /* 이미 완성돼 있으면 한 번만 조회해서 본문을 받는다 */
-            return fetchVideo(created.id).then(settle).catch(() => fail('결과를 불러오지 못했어요.'));
-          }
-          bump(12);
-          void watch(created.id);
-        })
-        .catch((e: unknown) => {
-          if (e instanceof ApiError && e.status === 401) return fail('로그인이 필요해요. 먼저 로그인해 주세요.');
-          fail(e instanceof ApiError ? e.message : '네트워크를 확인해 주세요.');
-        });
+      notified.current = false;
+      setVideoId(null);
+      create.mutate(text, {
+        onSuccess: (created) => {
+          /* 곧바로 FAILED 로 주겨도 조회를 한 번 더 해서 사유를 본다 — 본문까지 들어있다 */
+          setVideoId(created.id);
+        },
+      });
     },
-    [bump, fail, settle, stage, watch],
+    [create, videoId],
   );
 
-  /* 대기가 도는 중에 초기화되면 진행 중인 응답이 나중에 되살아나면 안 된다 */
   const reset = useCallback(() => {
-    liveRef.current = false;
-    pctRef.current = 0;
-    setPct(0);
-    setVideo(null);
-    setStage('idle');
-  }, []);
+    setVideoId(null);
+    notified.current = false;
+    create.reset();
+  }, [create]);
 
-  return { stage, pct, video, start, reset };
+  return { stage, pct, video: done ? (detail.data ?? null) : null, start, reset };
 }
