@@ -35,9 +35,19 @@
   백엔드 문서가 깨진 건지 앱이 깨진 건지 구분할 수 없기 때문.
 
 ## Pending/Next
-- **백엔드 CORS 가 아직 없다.** `Access-Control-Allow-*` 헤더가 하나도 없어 cross-origin 호출이 전부 막힌다.
-  - 지금은 `.env.local`의 `VITE_API_BASE=` (vite 프록시, 같은 출처)로 우회 중 — 코드는 상대경로로 나가 8080 으로 전달된다.
-  - 백엔드에 CORS 를 넣으면 `.env.local` 을 지운다(수정 0줄).
+- **백엔드 CORS 는 백엔드에서 처리하기로 했다.** FE 는 프록시를 쓰지 않고
+  `http://localhost:8080` 을 직접 때린다 (`VITE_API_BASE=http://localhost:8080`).
+  - 현재 상태로는 브라우저가 전부 막는다 — 실측:
+    `Access to fetch at 'http://localhost:8080/api/video/1' from origin
+    'http://localhost:5199' has been blocked by CORS policy`.
+  - 필요조건: `http://localhost:5199` 을 allowOrigins 에 넣고 `allowCredentials(true)`.
+    refreshToken 이 HttpOnly cookie 라 credentials 가 false 면 refresh/로그아웃이 조용히 실패한다.
+  - `Authorization` 헤더를 쓰므로 preflight 를 통과해야 한다 (`allowedHeaders` 포함).
+- **피드 스캔은 로그인 상태에서만 돈다.** `GET /api/video/{id}` 는 컨트롤러에 `@CurrentUserId` 가
+  없지만 `SecurityConfig.anyRequest().authenticated()` 때문에 실측 401 이다. 인증은 유지하기로 했다.
+  - `useRandomServerShort` 은 `enabled: !!getAccessToken()` — 익명이면 훑지 않는다.
+  - 목록 API 가 없다. `GET /api/video` 는 존재하지 않고 `/{videoId}` 뿐이라
+    1~15 를 병렬로 찔러야 한다. 없는 id 는 `VIDEO_NOT_FOUND(404)` 로 온다 — `ErrorCode.java:19`.
 - 백엔드가 로그인 성공 후 `http://localhost:5199/oauth/callback?key=<교환 토큰>` 으로 리다이렉트 하는지 확인 필요.
 - `POST /api/video` 로 실제 업로드 연동은 아직 안 건드렸다.
 - Playwright 체크는 `/tmp/opencode/*.mjs`, 리포에 포함되지 않는 임시 파일이다.

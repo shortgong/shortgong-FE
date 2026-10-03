@@ -1,10 +1,10 @@
 /**
  * 백엔드 연결 설정.
  *
- * 개발 중 FE 를 http://localhost:5199 으로 연다. 백엔드는 http://localhost:8080 이고
- * 두 출처는 같은 사이트(site)다 — 포트는 사이트 계산에서 제외되므로 refreshToken
- * 쿠키(SameSite=Lax)가 XHR 에도 붙는다. 127.0.0.1 로 열면 다른 사이트가 되어
- * 쿠키가 막히므로 localhost 로 고정한다.
+ * 개발 중 FE 를 http://localhost:5199 으로 연다. API 는 http://localhost:8080 을
+ * 직접 때린다 — 프록시 없음. 두 출처는 같은 사이트(site)다 — 포트는 사이트 계산에서
+ * 제외되므로 refreshToken 쿠키(SameSite=Lax)가 XHR 에도 붙는다. 127.0.0.1 로 열면
+ * 다른 사이트가 되어 쿠키가 막히므로 localhost 로 고정한다.
  */
 /**
  * 백엔드 원본 주소.
@@ -15,7 +15,7 @@
  */
 export const AUTH_ORIGIN = import.meta.env.VITE_AUTH_ORIGIN ?? 'http://localhost:8080';
 
-/** XHR 대상. '' 면 같은 출처로 나가 vite 프록시가 백엔드로 전달한다 */
+/** XHR 대상 — 8080 을 직접 때린다. 프록시를 쓰지 않는다 */
 export const API_BASE = import.meta.env.VITE_API_BASE ?? AUTH_ORIGIN;
 
 /** OAuth 시작점 — 여기로 통째로 이동한다 (백엔드가 Google 과 state/PKCE 를 다룬다) */
